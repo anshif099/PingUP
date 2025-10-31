@@ -148,11 +148,11 @@ const Auth = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-accent p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-accent p-4 chat-container">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-md shadow-2xl border-0">
+      <Card className="w-full max-w-md shadow-2xl border-0 mx-4">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <PingUPLogo className="w-16 h-16" />

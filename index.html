@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PingUP" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#000000" />
     <link rel="icon" type="image/jpeg" href="https://mma.prnewswire.com/media/342968/pingup_logo_vertical_Logo.jpg?p=publish&w=950" />
     <title>PingUP - Connect Instantly v1.0.1 Beta</title>
     <meta name="description" content="Modern real-time chat application built with Firebase" />
@@ -21,5 +26,34 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Mobile-specific styles */
+      @media (max-width: 768px) {
+        body {
+          overflow-x: hidden;
+        }
+
+        #root {
+          min-height: 100vh;
+          min-height: -webkit-fill-available;
+        }
+      }
+    </style>
   </body>
 </html>

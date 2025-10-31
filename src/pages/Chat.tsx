@@ -114,7 +114,7 @@ const Chat = () => {
       // Mark messages as read
       const markMessagesAsRead = async () => {
         if (!currentUser) return;
-        const unreadMessages = messagesData.filter(msg =>
+        const unreadMessages = messages.filter(msg =>
           msg.senderId !== currentUser.uid && !msg.readBy?.[currentUser.uid]
         );
         const updates: { [key: string]: any } = {};
@@ -329,9 +329,9 @@ const Chat = () => {
   );
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="h-screen flex bg-background chat-container">
       {/* Sidebar */}
-      <div className="w-80 border-r bg-sidebar-bg flex flex-col">
+      <div className="w-80 border-r bg-sidebar-bg flex flex-col md:w-64 sm:w-full sm:absolute sm:inset-0 sm:z-10">
          <div className="p-4 border-b space-y-4">
            <div className="flex items-center justify-between">
              <div className="flex items-center gap-2">
@@ -429,7 +429,7 @@ const Chat = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col sm:hidden md:flex">
         {selectedChat ? (
           <>
             {/* Chat Header */}
@@ -561,10 +561,11 @@ const Chat = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => fileInputRef.current?.click()}
+                  className="sm:w-10 sm:h-10"
                 >
                   <Image className="w-5 h-5" />
                 </Button>
-                <Button type="submit" size="icon">
+                <Button type="submit" size="icon" className="sm:w-10 sm:h-10">
                   <Send className="w-5 h-5" />
                 </Button>
               </form>
