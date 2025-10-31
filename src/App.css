@@ -67,16 +67,4 @@
   }
 }
 
-/* Fullscreen chat styles */
-.fullscreen-chat .chat-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 50;
-}
 
-.fullscreen-chat .hidden {
-  display: none !important;
-}
