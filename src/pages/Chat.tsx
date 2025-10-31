@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { Send, Search, LogOut, User, Image, Mic, Heart, Laugh, ThumbsUp, MoreVertical, Trash2 } from "lucide-react";
+import { Send, Search, LogOut, User, Image, Mic, Heart, Laugh, ThumbsUp, MoreVertical, Trash2, ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePresence, useUserPresence } from "@/hooks/usePresence";
@@ -333,7 +333,7 @@ const Chat = () => {
   return (
     <div className="h-screen flex bg-background chat-container">
       {/* Sidebar */}
-      <div className="w-80 border-r bg-sidebar-bg flex flex-col md:w-64 sm:w-full sm:absolute sm:inset-0 sm:z-10">
+      <div className={`w-80 border-r bg-sidebar-bg flex flex-col md:w-64 ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
          <div className="p-4 border-b space-y-4">
            <div className="flex items-center justify-between">
              <div className="flex items-center gap-2">
@@ -431,11 +431,19 @@ const Chat = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col sm:hidden md:flex">
+      <div className={`flex-1 flex flex-col ${selectedChat ? 'flex' : 'hidden md:flex'}`}>
         {selectedChat ? (
           <>
             {/* Chat Header */}
             <div className="p-4 border-b bg-card flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setSelectedChat(null)}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
               <Avatar>
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {selectedChat.otherUser.name.charAt(0).toUpperCase()}
@@ -448,7 +456,6 @@ const Chat = () => {
                 </p>
                 {isTyping && <p className="text-sm text-primary animate-pulse">typing...</p>}
               </div>
-
             </div>
 
             {/* Messages */}
