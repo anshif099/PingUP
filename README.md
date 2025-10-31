@@ -1,73 +1,181 @@
-# Welcome to your Lovable project
+# PingUP Chat App
 
-## Project info
+A modern, WhatsApp-like chat application built with React, TypeScript, Firebase, and Capacitor for cross-platform deployment.
 
-**URL**: https://lovable.dev/projects/7068fc43-1225-4da6-92cd-82c5b15a8d9c
+## Features
 
-## How can I edit this code?
+### Core Features
+- **User Authentication**: Register and login with username/password
+- **Real-time Chat**: Instant messaging with Firebase Realtime Database
+- **User Search & Follow**: Find users by username and follow/unfollow
+- **Media Messages**: Send images and voice notes via Firebase Storage
+- **Message Reactions**: React to messages with emojis (❤️ 😂 👍)
+- **Typing Indicators**: See when others are typing
+- **Read Receipts**: Double checkmarks for read messages
+- **Message Deletion**: Delete messages for sender
+- **Online Status & Last Seen**: Real-time presence tracking
+- **Dark/Light Mode**: Theme toggle with persistence
+- **Push Notifications**: FCM integration for instant notifications
 
-There are several ways of editing your application.
+### Mobile & Web
+- **Responsive Design**: Optimized for mobile, tablet, and desktop
+- **PWA Support**: Installable web app on mobile devices
+- **Native Apps**: Android and iOS builds via Capacitor
+- **Touch-Friendly**: Mobile-optimized interactions
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7068fc43-1225-4da6-92cd-82c5b15a8d9c) and start prompting.
+- **Frontend**: React 18, TypeScript, Tailwind CSS, Shadcn/ui
+- **Backend**: Firebase (Auth, Realtime Database, Storage, Cloud Messaging)
+- **Build Tool**: Vite
+- **Mobile**: Capacitor (Android & iOS)
+- **State Management**: React hooks, Context API
+- **Icons**: Lucide React
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- Firebase project with configured services
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/anshif099/PingUP.git
+   cd pingup-chat-app-main
+   ```
 
-Follow these steps:
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. **Configure Firebase**
+   - Update `src/lib/firebase.ts` with your Firebase config
+   - Set up Firebase Realtime Database rules (see `database.rules.json`)
+   - Enable Firebase Storage and Cloud Messaging
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. **Development**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:8080](http://localhost:8080)
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Mobile App Builds
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+#### Android
+```bash
+# Build and open Android Studio
+npm run android:build
+
+# Or step by step:
+npm run build
+npx cap sync android
+npx cap open android
 ```
 
-**Edit a file directly in GitHub**
+#### iOS (macOS only)
+```bash
+# Build and open Xcode
+npm run ios:build
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+# Or step by step:
+npm run build
+npx cap sync ios
+npx cap open ios
+```
 
-**Use GitHub Codespaces**
+### Capacitor Commands
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+# Sync web assets to all platforms
+npm run cap:sync
 
-## What technologies are used for this project?
+# Open Android Studio
+npm run cap:android
 
-This project is built with:
+# Open Xcode
+npm run cap:ios
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Firebase Setup
 
-## How can I deploy this project?
+1. **Create Firebase Project**
+2. **Enable Services**:
+   - Authentication (Email/Password)
+   - Realtime Database
+   - Storage
+   - Cloud Messaging
+3. **Security Rules**: Apply the rules from `database.rules.json`
+4. **Update Config**: Replace the config in `src/lib/firebase.ts`
 
-Simply open [Lovable](https://lovable.dev/projects/7068fc43-1225-4da6-92cd-82c5b15a8d9c) and click on Share -> Publish.
+## Project Structure
 
-## Can I connect a custom domain to my Lovable project?
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Shadcn/ui components
+│   └── ...
+├── contexts/           # React contexts (Theme, etc.)
+├── hooks/              # Custom React hooks
+├── lib/                # Utilities and Firebase config
+├── pages/              # Main app pages (Auth, Chat)
+└── ...
 
-Yes, you can!
+android/                # Android native project
+ios/                    # iOS native project
+dist/                   # Built web assets
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Features Overview
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Authentication
+- Register with name, email, username, password
+- Login with username and password
+- Username uniqueness validation
+- User data stored in Firebase Auth + Realtime DB
+
+### Chat System
+- Real-time messaging with Firebase Realtime Database
+- Chat rooms stored under unique chat IDs
+- Message history with timestamps
+- Support for text, images, and voice notes
+
+### User Management
+- Search users by username
+- Follow/unfollow functionality
+- Online/offline status tracking
+- Last seen timestamps
+
+### Advanced Features
+- Message reactions and read receipts
+- Typing indicators
+- Message deletion
+- Push notifications via FCM
+- Dark/light theme toggle
+- Mobile-responsive design
+
+## Security
+
+- Firebase Database rules protect user data
+- Only authenticated users can access their own data
+- Chat participants can access shared messages
+- Secure file uploads to Firebase Storage
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For issues and questions, please open an issue on GitHub.

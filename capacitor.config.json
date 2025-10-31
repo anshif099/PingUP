@@ -1,0 +1,6 @@
+{
+  "appId": "com.pingup.chat",
+  "appName": "PingUP",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
