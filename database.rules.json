@@ -1,0 +1,66 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "users": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || root.child('users').child(auth.uid).child('following').hasChild($userId) || root.child('users').child($userId).child('following').hasChild(auth.uid))",
+        ".write": "auth != null && auth.uid == $userId",
+        "following": {
+          ".read": "auth != null && auth.uid == $userId",
+          ".write": "auth != null && auth.uid == $userId"
+        },
+        "followers": {
+          ".read": "auth != null && auth.uid == $userId",
+          ".write": "auth != null && auth.uid == $userId"
+        },
+        "presence": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid == $userId"
+        },
+        "lastSeen": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid == $userId"
+        }
+      }
+    },
+    "usernames": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "userChats": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId"
+      }
+    },
+    "chats": {
+      "$chatId": {
+        ".read": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))",
+        ".write": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))",
+        "messages": {
+          ".read": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))",
+          ".write": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))",
+          "$messageId": {
+            "reactions": {
+              ".read": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))",
+              ".write": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))"
+            },
+            "readBy": {
+              ".read": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))",
+              ".write": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))"
+            }
+          }
+        },
+        "lastMessage": {
+          ".read": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))",
+          ".write": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))"
+        },
+        "typing": {
+          ".read": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))",
+          ".write": "auth != null && (root.child('userChats').child(auth.uid).hasChild($chatId))"
+        }
+      }
+    }
+  }
+}

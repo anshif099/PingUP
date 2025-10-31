@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 15%;
+
+    --primary: 174 62% 47%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 174 62% 55%;
+    --primary-dark: 174 62% 40%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 174 62% 97%;
+    --accent-foreground: 174 62% 47%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 174 62% 47%;
+
+    --radius: 0.75rem;
+
+    --chat-bg: 0 0% 98%;
+    --chat-bubble-sent: 174 62% 47%;
+    --chat-bubble-received: 0 0% 100%;
+    --sidebar-bg: 0 0% 100%;
+    --sidebar-hover: 0 0% 96%;
+  }
+
+  .dark {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 174 62% 47%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 174 62% 55%;
+    --primary-dark: 174 62% 40%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 174 62% 15%;
+    --accent-foreground: 174 62% 47%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 174 62% 47%;
+
+    --chat-bg: 0 0% 5%;
+    --chat-bubble-sent: 174 62% 40%;
+    --chat-bubble-received: 0 0% 12%;
+    --sidebar-bg: 0 0% 10%;
+    --sidebar-hover: 0 0% 15%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
