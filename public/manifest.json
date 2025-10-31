@@ -1,0 +1,28 @@
+{
+  "name": "PingUP - Connect Instantly",
+  "short_name": "PingUP",
+  "description": "Modern real-time chat application built with Firebase",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "https://mma.prnewswire.com/media/342968/pingup_logo_vertical_Logo.jpg?p=publish&w=950",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://mma.prnewswire.com/media/342968/pingup_logo_vertical_Logo.jpg?p=publish&w=950",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["communication", "social", "chat"],
+  "lang": "en",
+  "dir": "ltr"
+}
