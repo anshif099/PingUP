@@ -36,7 +36,7 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Check if username already exists
+      // Check if username already exists (this should work since usernames collection allows public read)
       const usernameRef = ref(database, `usernames/${registerData.username}`);
       const usernameSnapshot = await get(usernameRef);
 
@@ -46,33 +46,48 @@ const Auth = () => {
         return;
       }
 
+      // Create a unique email for Firebase Auth (since emails must be unique)
+      // We'll use the username with a domain to ensure uniqueness
+      const authEmail = `${registerData.username}@pingup.local`;
+
+      console.log(`Creating user with email: ${authEmail}`);
+
       // Create user with email and password
       const userCredential = await createUserWithEmailAndPassword(
         auth,
-        registerData.email,
+        authEmail,
         registerData.password
       );
+
+      console.log("User created in Firebase Auth:", userCredential.user.uid);
 
       // Store user data in database
       await set(ref(database, `users/${userCredential.user.uid}`), {
         name: registerData.name,
-        email: registerData.email,
+        email: registerData.email, // Store the real email for display purposes
         username: registerData.username,
         createdAt: Date.now(),
         following: {},
         followers: {},
       });
 
-      // Store username mapping with email for login
+      // Store username mapping with auth email for login
       await set(ref(database, `usernames/${registerData.username}`), {
         uid: userCredential.user.uid,
-        email: registerData.email
+        authEmail: authEmail, // Store the auth email for login
+        displayEmail: registerData.email // Store the real email for display
       });
 
+      console.log("User data stored in database");
       toast.success("Account created successfully!");
       navigate("/chat");
     } catch (error: any) {
-      toast.error(error.message || "Failed to create account");
+      console.error("Registration error:", error);
+      if (error.message?.includes('email-already-in-use')) {
+        toast.error("This username is already taken. Please choose a different one.");
+      } else {
+        toast.error(error.message || "Failed to create account");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +98,7 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Get user data from username
+      // Try to get the auth email from the usernames collection
       const usernameRef = ref(database, `usernames/${loginData.username}`);
       const usernameSnapshot = await get(usernameRef);
 
@@ -94,46 +109,34 @@ const Auth = () => {
       }
 
       const usernameData = usernameSnapshot.val();
-      let userEmail;
+      let authEmail;
 
-      // Handle different data formats
-      if (typeof usernameData === 'object' && usernameData.email) {
-        // New format: { uid, email }
-        userEmail = usernameData.email;
-      } else if (typeof usernameData === 'string') {
-        // Old format: just uid string - need to get email from users collection
-        // But we can't read users collection without auth, so try a different approach
-        // Use the uid as part of email pattern
-        userEmail = `${loginData.username}@pingup.local`;
+      // Get the auth email from the stored data
+      if (typeof usernameData === 'object' && usernameData.authEmail) {
+        authEmail = usernameData.authEmail;
       } else {
-        toast.error("Invalid user data format");
-        setIsLoading(false);
-        return;
+        // Fallback for old format - construct the email
+        authEmail = `${loginData.username}@pingup.local`;
       }
 
-      // Try to sign in with the email
-      try {
-        await signInWithEmailAndPassword(auth, userEmail, loginData.password);
-        toast.success("Logged in successfully!");
-        navigate("/chat");
-      } catch (authError: any) {
-        // If the constructed email doesn't work, try alternative approaches
-        if (userEmail.includes('@pingup.local')) {
-          // Try with different domain
-          try {
-            await signInWithEmailAndPassword(auth, `${loginData.username}@example.com`, loginData.password);
-            toast.success("Logged in successfully!");
-            navigate("/chat");
-          } catch (secondError) {
-            toast.error("Login failed. Please check your credentials.");
-          }
-        } else {
-          toast.error(authError.message || "Login failed");
-        }
-      }
+      console.log(`Attempting login with email: ${authEmail}`);
+
+      // Sign in with the auth email
+      await signInWithEmailAndPassword(auth, authEmail, loginData.password);
+
+      console.log("Login successful!");
+      toast.success("Logged in successfully!");
+      navigate("/chat");
+
     } catch (error: any) {
       console.error("Login error:", error);
-      toast.error("An error occurred during login. Please try again.");
+      if (error.message?.includes('user-not-found')) {
+        toast.error("Username not found. Please check your username.");
+      } else if (error.message?.includes('wrong-password') || error.message?.includes('invalid-credential')) {
+        toast.error("Incorrect password. Please try again.");
+      } else {
+        toast.error("Login failed. Please check your credentials.");
+      }
     } finally {
       setIsLoading(false);
     }
