@@ -139,7 +139,7 @@ const Chat = () => {
         unsubscribeTyping();
       };
     }
-  }, [selectedChat, messages, currentUser]);
+  }, [selectedChat, currentUser]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
