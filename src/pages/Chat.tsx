@@ -59,9 +59,13 @@ const Chat = () => {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingTimeoutRef = useRef<NodeJS.Timeout>();
   const { isOnline: currentUserOnline } = usePresence(currentUser?.uid || null);
   const { isOnline: otherUserOnline, lastSeen: otherUserLastSeen } = useUserPresence(selectedChat?.otherUser.uid || "");
 
@@ -293,9 +297,59 @@ const Chat = () => {
       await push(messagesRef, messageData);
 
       // Update last message
-      await set(ref(database, `chats/${selectedChat.chatId}/lastMessage`), messageData);
+      await set(ref(database, `chats/${selectedChat.chatId}/lastMessage`), {
+        senderId: currentUser.uid,
+        voiceUrl: "[Voice Message]",
+        timestamp: Date.now(),
+      });
+
+      toast.success("Voice message sent!");
     } catch (error) {
+      console.error("Error uploading voice note:", error);
       toast.error("Failed to upload voice note");
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      const chunks: Blob[] = [];
+      mediaRecorder.ondataavailable = (event) => {
+        chunks.push(event.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        await handleVoiceNote(blob);
+        stream.getTracks().forEach(track => track.stop());
+        setIsRecording(false);
+        setRecordingTime(0);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      // Start timer
+      const startTime = Date.now();
+      recordingTimeoutRef.current = setInterval(() => {
+        setRecordingTime(Math.floor((Date.now() - startTime) / 1000));
+      }, 1000);
+
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      toast.error("Failed to start recording");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      if (recordingTimeoutRef.current) {
+        clearInterval(recordingTimeoutRef.current);
+      }
     }
   };
 
@@ -506,9 +560,12 @@ const Chat = () => {
                             <img src={message.imageUrl} alt="Shared image" className="rounded-lg max-w-full mb-2" />
                           )}
                           {message.voiceUrl && (
-                            <audio controls className="w-full">
-                              <source src={message.voiceUrl} type="audio/webm" />
-                            </audio>
+                            <div className="flex items-center gap-2">
+                              <audio controls className="flex-1">
+                                <source src={message.voiceUrl} type="audio/webm" />
+                              </audio>
+                              <span className="text-xs text-muted-foreground">🎵 Voice</span>
+                            </div>
                           )}
                           {message.text && <p className="text-sm sm:text-base">{message.text}</p>}
                           <p className="text-xs opacity-70 mt-1">
@@ -668,6 +725,18 @@ const Chat = () => {
                   className="w-10 h-10"
                 >
                   <Image className="w-4 h-4 sm:w-5 sm:h-5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={isRecording ? "destructive" : "outline"}
+                  size="icon"
+                  onMouseDown={startRecording}
+                  onMouseUp={stopRecording}
+                  onMouseLeave={stopRecording}
+                  className="w-10 h-10"
+                  title={isRecording ? `Recording... ${recordingTime}s` : "Hold to record voice message"}
+                >
+                  <Mic className={`w-4 h-4 sm:w-5 sm:h-5 ${isRecording ? 'animate-pulse' : ''}`} />
                 </Button>
                 <Button type="submit" size="icon" className="w-10 h-10">
                   <Send className="w-4 h-4 sm:w-5 sm:h-5" />
