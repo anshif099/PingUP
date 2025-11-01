@@ -58,6 +58,7 @@
   - Protect user data (only owner can read/write)
   - Protect messages (only chat participants can access)
   - Create database.rules.json file
+- [x] Add Firebase Storage Security Rules (CORS and access rules)
 
 ## 6. Testing and Followup
 - [x] Test all features: Auth, chat, media, notifications, etc.
