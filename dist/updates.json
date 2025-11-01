@@ -1,0 +1,21 @@
+{
+  "latest": {
+    "version": "1.7.0",
+    "features": [
+      "Switched to local storage for images and voice messages",
+      "Images and voice notes now stored directly in Firebase Realtime Database as base64",
+      "Eliminated Firebase Storage CORS issues completely",
+      "Faster media uploads without external storage dependencies",
+      "Enhanced media display with file names for images",
+      "Improved voice message handling with base64 encoding",
+      "Reduced complexity by removing Firebase Storage integration",
+      "Better compatibility across different environments",
+      "Maintained all existing chat features",
+      "Preserved real-time messaging functionality"
+    ],
+    "changelog": "This update switches to local storage for media files, eliminating CORS issues!\n\n💾 **Local Storage Solution:**\n- Images and voice messages now stored in Firebase Realtime Database\n- No more CORS policy blocking uploads from localhost\n- Faster uploads without external storage dependencies\n- Base64 encoding for seamless data storage\n\n📸 **Enhanced Image Sharing:**\n- Images stored locally in database as base64\n- File names displayed below images\n- Instant preview and sending\n- No Firebase Storage required\n\n🎙️ **Improved Voice Messages:**\n- Voice notes stored locally in database\n- Base64 encoding for audio data\n- Reliable playback without external URLs\n- Maintained all recording features\n\nThis solution provides a simpler, more reliable media sharing experience without CORS complications!",
+    "releaseDate": "2024-12-19",
+    "size": "2.7 MB",
+    "downloadUrl": "/updates/pingup-v1.7.0.zip"
+  }
+}
