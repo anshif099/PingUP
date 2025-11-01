@@ -57,6 +57,8 @@ const Chat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [following, setFollowing] = useState<{ [uid: string]: boolean }>({});
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -550,6 +552,55 @@ const Chat = () => {
               </div>
             </ScrollArea>
 
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="p-2 sm:p-4 border-t bg-card">
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Ready to send</p>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedImage?.name}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedImage(null);
+                        setImagePreview(null);
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = '';
+                        }
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        if (selectedImage) {
+                          await handleImageUpload(selectedImage);
+                          setSelectedImage(null);
+                          setImagePreview(null);
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = '';
+                          }
+                        }
+                      }}
+                    >
+                      Send
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Message Input */}
             <div className="p-2 sm:p-4 border-t bg-card">
               <form
@@ -574,7 +625,14 @@ const Chat = () => {
                   ref={fileInputRef}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) handleImageUpload(file);
+                    if (file) {
+                      setSelectedImage(file);
+                      const reader = new FileReader();
+                      reader.onload = (e) => {
+                        setImagePreview(e.target?.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
                   }}
                   className="hidden"
                 />

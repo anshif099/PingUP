@@ -1,18 +1,15 @@
 {
   "latest": {
-    "version": "1.3.0",
+    "version": "1.4.0",
     "features": [
-      "Fixed auto logout issue - users now stay logged in until explicitly clicking logout",
-      "Enhanced mobile responsiveness with improved update dialog",
-      "Better mobile layout with optimized sidebar and chat areas",
-      "Responsive icons and text sizing for all screen sizes",
-      "Improved spacing and padding for mobile devices",
-      "Enhanced mobile navigation with proper back buttons",
-      "Optimized message display for small screens"
+      "Fixed photo sending functionality with image preview",
+      "Users can now select and preview images before sending",
+      "Improved image upload experience with send/cancel options",
+      "Enhanced chat interface for better media sharing"
     ],
-    "changelog": "This update focuses on mobile responsiveness and login persistence:\n\n- Fixed persistent login issue preventing unwanted logouts\n- Mobile-first responsive design improvements\n- Better update dialog experience on mobile\n- Optimized layouts for various screen sizes\n- Enhanced mobile navigation and user experience\n\nUsers can now enjoy a seamless experience across all devices with persistent sessions.",
+    "changelog": "This update improves the photo sharing experience:\n\n- Fixed image sending functionality\n- Added image preview before sending\n- Users can now review selected photos before sharing\n- Improved media upload workflow with send/cancel options\n- Better visual feedback for image selection\n\nPhoto sharing is now more reliable and user-friendly!",
     "releaseDate": "2024-12-19",
-    "size": "2.3 MB",
-    "downloadUrl": "/updates/pingup-v1.3.0.zip"
+    "size": "2.4 MB",
+    "downloadUrl": "/updates/pingup-v1.4.0.zip"
   }
 }
