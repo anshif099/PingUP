@@ -10,13 +10,13 @@
   "scope": "/",
   "icons": [
     {
-      "src": "https://mma.prnewswire.com/media/342968/pingup_logo_vertical_Logo.jpg?p=publish&w=950",
+      "src": "/PingUP.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "https://mma.prnewswire.com/media/342968/pingup_logo_vertical_Logo.jpg?p=publish&w=950",
+      "src": "/PingUP.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any maskable"
