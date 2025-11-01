@@ -87,7 +87,7 @@ export const UpdateDialog = ({ open, onOpenChange }: UpdateDialogProps) => {
           <CheckCircle className="w-12 h-12 text-green-500" />
           <div className="text-center">
             <h3 className="text-lg font-semibold">You're up to date!</h3>
-            <p className="text-muted-foreground">PingUP v{updateInfo?.version || '1.1.0'} is the latest version.</p>
+            <p className="text-muted-foreground">PingUP v{updateInfo?.version || '1.3.0'} is the latest version.</p>
           </div>
           <Button onClick={handleCheckUpdates} variant="outline">
             <RefreshCw className="w-4 h-4 mr-2" />
@@ -207,10 +207,10 @@ export const UpdateDialog = ({ open, onOpenChange }: UpdateDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>App Updates</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">App Updates</DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             Keep PingUP up to date with the latest features and improvements.
           </DialogDescription>
         </DialogHeader>
