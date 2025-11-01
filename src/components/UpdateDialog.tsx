@@ -164,14 +164,14 @@ export const UpdateDialog = ({ open, onOpenChange }: UpdateDialogProps) => {
             </div>
           )}
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             {step === 'check' && (
               <>
-                <Button onClick={handleDownload} className="flex-1">
+                <Button onClick={handleDownload} className="flex-1 w-full sm:w-auto">
                   <Download className="w-4 h-4 mr-2" />
                   Download Update
                 </Button>
-                <Button onClick={handleSkip} variant="outline">
+                <Button onClick={handleSkip} variant="outline" className="w-full sm:w-auto">
                   Skip
                 </Button>
               </>
