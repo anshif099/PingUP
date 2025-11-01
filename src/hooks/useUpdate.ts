@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface UpdateInfo {
   version: string;
@@ -138,7 +139,14 @@ export const useUpdate = () => {
 
   // Check for updates on mount
   useEffect(() => {
-    checkForUpdates();
+    // Auto-check for updates on app start
+    const autoCheckUpdates = async () => {
+      const hasUpdate = await checkForUpdates();
+      if (hasUpdate) {
+        toast.info("Update available! Check the update button for details.");
+      }
+    };
+    autoCheckUpdates();
   }, []);
 
   return {

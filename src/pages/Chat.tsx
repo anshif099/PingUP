@@ -335,7 +335,7 @@ const Chat = () => {
   return (
     <div className="h-screen flex bg-background chat-container">
       {/* Sidebar */}
-      <div className={`w-80 border-r bg-sidebar-bg flex flex-col md:w-64 sm:w-full ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`w-80 border-r bg-sidebar-bg flex flex-col md:w-64 ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
          <div className="p-2 sm:p-4 border-b space-y-4">
            <div className="flex items-center justify-between">
              <div className="flex items-center gap-2">
@@ -444,7 +444,7 @@ const Chat = () => {
       </div>
 
       {/* Chat Area */}
-      <div className={`flex-1 flex flex-col sm:flex ${selectedChat ? 'flex' : 'hidden md:flex'}`}>
+      <div className={`flex-1 flex flex-col ${selectedChat ? 'flex' : 'hidden md:flex'}`}>
         {selectedChat ? (
           <>
             {/* Chat Header */}
