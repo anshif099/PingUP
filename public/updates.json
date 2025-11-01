@@ -1,21 +1,18 @@
 {
   "latest": {
-    "version": "1.2.0",
+    "version": "1.3.0",
     "features": [
-      "Enhanced mobile responsiveness with fullscreen chat view",
-      "Improved typing indicators and read receipts",
-      "Added message reactions (❤️ 😂 👍)",
-      "Voice note support for richer communication",
-      "Dark/Light mode toggle for better user experience",
-      "Online/Offline status and last seen functionality",
-      "Follow/Unfollow users feature",
-      "Message deletion for better privacy control",
-      "Firebase Cloud Messaging for instant notifications",
-      "Secure database rules for data protection"
+      "Fixed auto logout issue - users now stay logged in until explicitly clicking logout",
+      "Enhanced mobile responsiveness with improved update dialog",
+      "Better mobile layout with optimized sidebar and chat areas",
+      "Responsive icons and text sizing for all screen sizes",
+      "Improved spacing and padding for mobile devices",
+      "Enhanced mobile navigation with proper back buttons",
+      "Optimized message display for small screens"
     ],
-    "changelog": "This update brings significant improvements to the PingUP chat experience:\n\n- Mobile-first design with WhatsApp-like navigation\n- Real-time features including presence, typing, and reactions\n- Enhanced security with proper Firebase rules\n- Media support for images and voice notes\n- Theme customization options\n- Improved user privacy controls\n\nAll features are now fully functional and tested.",
-    "releaseDate": "2024-01-15",
-    "size": "2.5 MB",
-    "downloadUrl": "/updates/pingup-v1.2.0.zip"
+    "changelog": "This update focuses on mobile responsiveness and login persistence:\n\n- Fixed persistent login issue preventing unwanted logouts\n- Mobile-first responsive design improvements\n- Better update dialog experience on mobile\n- Optimized layouts for various screen sizes\n- Enhanced mobile navigation and user experience\n\nUsers can now enjoy a seamless experience across all devices with persistent sessions.",
+    "releaseDate": "2024-12-19",
+    "size": "2.3 MB",
+    "downloadUrl": "/updates/pingup-v1.3.0.zip"
   }
 }
