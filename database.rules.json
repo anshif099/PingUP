@@ -26,7 +26,11 @@
     },
     "usernames": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      "$username": {
+        ".read": true,
+        ".write": true
+      }
     },
     "userChats": {
       "$userId": {
