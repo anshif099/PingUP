@@ -63,8 +63,11 @@ const Auth = () => {
         followers: {},
       });
 
-      // Store username mapping
-      await set(ref(database, `usernames/${registerData.username}`), userCredential.user.uid);
+      // Store username mapping with email for login
+      await set(ref(database, `usernames/${registerData.username}`), {
+        uid: userCredential.user.uid,
+        email: registerData.email
+      });
 
       toast.success("Account created successfully!");
       navigate("/chat");
@@ -90,20 +93,35 @@ const Auth = () => {
         return;
       }
 
-      const userId = usernameSnapshot.val();
-      const userRef = ref(database, `users/${userId}`);
-      const userSnapshot = await get(userRef);
+      const usernameData = usernameSnapshot.val();
 
-      if (!userSnapshot.exists()) {
-        toast.error("User data not found");
+      // Check if usernameData is an object (new format) or just uid (old format)
+      let userEmail;
+      if (typeof usernameData === 'object' && usernameData.email) {
+        userEmail = usernameData.email;
+      } else {
+        // Fallback for old format - try to get user data (might fail due to permissions)
+        try {
+          const userId = typeof usernameData === 'object' ? usernameData.uid : usernameData;
+          const userRef = ref(database, `users/${userId}`);
+          const userSnapshot = await get(userRef);
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.val();
+            userEmail = userData.email;
+          }
+        } catch (error) {
+          console.log("Could not read user data directly");
+        }
+      }
+
+      if (!userEmail) {
+        toast.error("Could not retrieve user information. Please try again.");
         setIsLoading(false);
         return;
       }
 
-      const userData = userSnapshot.val();
-
       // Sign in with email and password
-      await signInWithEmailAndPassword(auth, userData.email, loginData.password);
+      await signInWithEmailAndPassword(auth, userEmail, loginData.password);
 
       toast.success("Logged in successfully!");
       navigate("/chat");
