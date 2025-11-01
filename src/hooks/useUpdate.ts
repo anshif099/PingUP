@@ -146,7 +146,10 @@ export const useUpdate = () => {
         toast.info("Update available! Check the update button for details.");
       }
     };
-    autoCheckUpdates();
+
+    // Delay auto-check to avoid immediate popup on app load
+    const timer = setTimeout(autoCheckUpdates, 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   return {
