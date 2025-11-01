@@ -340,7 +340,6 @@ const Chat = () => {
            <div className="flex items-center justify-between">
              <div className="flex items-center gap-2">
                <PingUPLogo className="w-6 h-6 sm:w-8 sm:h-8" />
-               <span className="text-xs text-muted-foreground">v1.3.0</span>
              </div>
              <div className="flex items-center gap-1 sm:gap-2">
                <ThemeToggle />
