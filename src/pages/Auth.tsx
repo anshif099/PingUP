@@ -159,7 +159,7 @@ const Auth = () => {
           </div>
            <CardTitle className="text-3xl font-bold">PingUP</CardTitle>
            <CardDescription>Connect with friends instantly</CardDescription>
-           <p className="text-sm text-muted-foreground">v1.0.1 Beta</p>
+           <p className="text-sm text-muted-foreground">v1.3.0</p>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">

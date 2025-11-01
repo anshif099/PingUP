@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
@@ -18,12 +18,23 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
+    const initAuth = async () => {
+      try {
+        // Set persistence to browser local storage to prevent auto logout
+        await setPersistence(auth, browserLocalPersistence);
+      } catch (error) {
+        console.error('Error setting auth persistence:', error);
+      }
 
-    return () => unsubscribe();
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    };
+
+    initAuth();
   }, []);
 
   if (loading) {
