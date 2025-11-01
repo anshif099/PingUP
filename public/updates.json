@@ -1,18 +1,21 @@
 {
   "latest": {
-    "version": "1.5.0",
+    "version": "1.6.0",
     "features": [
+      "Fixed Firebase Storage CORS issues for image and voice uploads",
+      "Images and voice messages now upload properly to Firebase Storage",
+      "Enhanced media upload reliability with better error handling",
+      "Improved Firebase Storage integration for seamless media sharing",
+      "Fixed local storage issues preventing media uploads",
       "Added voice message functionality - hold to record and send voice notes",
       "Fixed photo sending functionality with image preview",
       "Users can now select and preview images before sending",
-      "Improved image upload experience with send/cancel options",
-      "Enhanced chat interface for better media sharing",
       "Voice messages with audio playback controls",
       "Real-time recording feedback with visual indicators"
     ],
-    "changelog": "This update brings exciting new voice messaging features!\n\n🎙️ **New Voice Messages:**\n- Hold the microphone button to record voice messages\n- Visual feedback during recording (red pulsing button)\n- Automatic upload and instant playback\n- Voice messages appear in chat with audio controls\n\n📸 **Enhanced Photo Sharing:**\n- Fixed image sending functionality\n- Added image preview before sending\n- Users can now review selected photos before sharing\n- Improved media upload workflow with send/cancel options\n- Better visual feedback for image selection\n\nVoice messaging makes PingUP even more like WhatsApp! Users can now send voice notes by simply holding the mic button while speaking.",
+    "changelog": "This update fixes critical Firebase Storage issues and enhances media sharing!\n\n🔧 **Fixed Firebase Storage Issues:**\n- Resolved CORS policy blocking uploads from localhost\n- Images and voice messages now upload successfully\n- Fixed local storage conflicts preventing media uploads\n- Enhanced Firebase Storage integration for reliable uploads\n\n🎙️ **Voice Messages:**\n- Hold the microphone button to record voice messages\n- Visual feedback during recording (red pulsing button)\n- Automatic upload and instant playback\n- Voice messages appear in chat with audio controls\n\n📸 **Enhanced Photo Sharing:**\n- Fixed image sending functionality\n- Added image preview before sending\n- Users can now review selected photos before sharing\n- Improved media upload workflow with send/cancel options\n\nMedia sharing is now fully functional! Send images and voice messages without any CORS or upload issues.",
     "releaseDate": "2024-12-19",
-    "size": "2.5 MB",
-    "downloadUrl": "/updates/pingup-v1.5.0.zip"
+    "size": "2.6 MB",
+    "downloadUrl": "/updates/pingup-v1.6.0.zip"
   }
 }
