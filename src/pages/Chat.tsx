@@ -335,30 +335,32 @@ const Chat = () => {
   return (
     <div className="h-screen flex bg-background chat-container">
       {/* Sidebar */}
-      <div className={`w-80 border-r bg-sidebar-bg flex flex-col md:w-64 ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
-         <div className="p-4 border-b space-y-4">
+      <div className={`w-80 border-r bg-sidebar-bg flex flex-col md:w-64 sm:w-full ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
+         <div className="p-2 sm:p-4 border-b space-y-4">
            <div className="flex items-center justify-between">
              <div className="flex items-center gap-2">
-               <PingUPLogo className="w-8 h-8" />
+               <PingUPLogo className="w-6 h-6 sm:w-8 sm:h-8" />
                <span className="text-xs text-muted-foreground">v1.1.0</span>
              </div>
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-1 sm:gap-2">
                <ThemeToggle />
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowUpdateDialog(true)}
                 title="Check for Updates"
+                className="w-8 h-8 sm:w-10 sm:h-10"
               >
-                <RefreshCw className="w-5 h-5" />
+                <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
                 title="Logout"
+                className="w-8 h-8 sm:w-10 sm:h-10"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </div>
           </div>
@@ -368,7 +370,7 @@ const Chat = () => {
               placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-9 text-sm sm:text-base"
             />
           </div>
         </div>
@@ -377,32 +379,33 @@ const Chat = () => {
           {searchQuery ? (
             <div className="p-2 space-y-1">
               {filteredUsers.map((user) => (
-                <div key={user.uid} className="flex items-center gap-3 p-3 hover:bg-sidebar-hover rounded-lg transition-colors">
+                <div key={user.uid} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-sidebar-hover rounded-lg transition-colors">
                   <button
                     onClick={() => handleUserSelect(user)}
-                    className="flex items-center gap-3 flex-1"
+                    className="flex items-center gap-2 sm:gap-3 flex-1"
                   >
-                    <Avatar>
-                      <AvatarFallback className="bg-primary text-primary-foreground">
+                    <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
                         {user.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 text-left">
-                      <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">@{user.username}</p>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="font-medium text-sm sm:text-base truncate">{user.name}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">@{user.username}</p>
                     </div>
                   </button>
                   <Button
                     variant={following[user.uid] ? "default" : "outline"}
                     size="sm"
                     onClick={() => handleFollowToggle(user)}
+                    className="text-xs sm:text-sm px-2 sm:px-3 h-7 sm:h-8"
                   >
                     {following[user.uid] ? "Following" : "Follow"}
                   </Button>
                 </div>
               ))}
               {filteredUsers.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">No users found</p>
+                <p className="text-center text-muted-foreground py-8 text-sm sm:text-base">No users found</p>
               )}
             </div>
           ) : (
@@ -411,18 +414,18 @@ const Chat = () => {
                 <button
                   key={chat.chatId}
                   onClick={() => setSelectedChat(chat)}
-                  className={`w-full p-3 flex items-center gap-3 hover:bg-sidebar-hover rounded-lg transition-colors ${
+                  className={`w-full p-2 sm:p-3 flex items-center gap-2 sm:gap-3 hover:bg-sidebar-hover rounded-lg transition-colors ${
                     selectedChat?.chatId === chat.chatId ? "bg-sidebar-hover" : ""
                   }`}
                 >
-                  <Avatar>
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                  <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
                       {chat.otherUser.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 text-left">
-                    <p className="font-medium">{chat.otherUser.name}</p>
-                    <p className="text-sm text-muted-foreground truncate">
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="font-medium text-sm sm:text-base truncate">{chat.otherUser.name}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">
                       {chat.lastMessage || "Start a conversation"}
                     </p>
                   </div>
@@ -430,9 +433,9 @@ const Chat = () => {
               ))}
               {chats.length === 0 && (
                 <div className="text-center py-8 px-4">
-                  <User className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-muted-foreground">No chats yet</p>
-                  <p className="text-sm text-muted-foreground">Search for users to start chatting</p>
+                  <User className="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-muted-foreground text-sm sm:text-base">No chats yet</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Search for users to start chatting</p>
                 </div>
               )}
             </div>
@@ -441,35 +444,35 @@ const Chat = () => {
       </div>
 
       {/* Chat Area */}
-      <div className={`flex-1 flex flex-col ${selectedChat ? 'flex' : 'hidden md:flex'}`}>
+      <div className={`flex-1 flex flex-col sm:flex ${selectedChat ? 'flex' : 'hidden md:flex'}`}>
         {selectedChat ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b bg-card flex items-center gap-3">
+            <div className="p-2 sm:p-4 border-b bg-card flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden sm:flex"
                 onClick={() => setSelectedChat(null)}
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <Avatar>
-                <AvatarFallback className="bg-primary text-primary-foreground">
+              <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
                   {selectedChat.otherUser.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <p className="font-semibold">{selectedChat.otherUser.name}</p>
-                <p className="text-sm text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm sm:text-base truncate">{selectedChat.otherUser.name}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
                   @{selectedChat.otherUser.username} • {otherUserOnline ? "Online" : otherUserLastSeen ? `Last seen ${new Date(otherUserLastSeen).toLocaleString()}` : "Offline"}
                 </p>
-                {isTyping && <p className="text-sm text-primary animate-pulse">typing...</p>}
+                {isTyping && <p className="text-xs sm:text-sm text-primary animate-pulse">typing...</p>}
               </div>
             </div>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 p-4 bg-chat-bg">
+            <ScrollArea className="flex-1 p-2 sm:p-4 bg-chat-bg">
               <div className="space-y-4">
                 {messages.filter(msg => !msg.deleted).map((message) => {
                   const isSent = message.senderId === currentUser?.uid;
@@ -478,7 +481,7 @@ const Chat = () => {
                       key={message.id}
                       className={`flex ${isSent ? "justify-end" : "justify-start"}`}
                     >
-                      <div className="max-w-md">
+                      <div className="max-w-xs sm:max-w-md">
                         <Card
                           className={`p-3 ${
                             isSent
@@ -494,7 +497,7 @@ const Chat = () => {
                               <source src={message.voiceUrl} type="audio/webm" />
                             </audio>
                           )}
-                          {message.text && <p>{message.text}</p>}
+                          {message.text && <p className="text-sm sm:text-base">{message.text}</p>}
                           <p className="text-xs opacity-70 mt-1">
                             {new Date(message.timestamp).toLocaleTimeString([], {
                               hour: "2-digit",
@@ -549,7 +552,7 @@ const Chat = () => {
             </ScrollArea>
 
             {/* Message Input */}
-            <div className="p-4 border-t bg-card">
+            <div className="p-2 sm:p-4 border-t bg-card">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -564,7 +567,7 @@ const Chat = () => {
                     handleTyping();
                   }}
                   placeholder="Type a message..."
-                  className="flex-1"
+                  className="flex-1 text-sm sm:text-base"
                 />
                 <input
                   type="file"
@@ -581,23 +584,23 @@ const Chat = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => fileInputRef.current?.click()}
-                  className="sm:w-10 sm:h-10"
+                  className="w-10 h-10"
                 >
-                  <Image className="w-5 h-5" />
+                  <Image className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
-                <Button type="submit" size="icon" className="sm:w-10 sm:h-10">
-                  <Send className="w-5 h-5" />
+                <Button type="submit" size="icon" className="w-10 h-10">
+                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </form>
             </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-chat-bg">
-            <div className="text-center">
-              <PingUPLogo className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <h2 className="text-2xl font-semibold mb-2">Welcome to PingUP</h2>
-              <p className="text-muted-foreground">Select a chat to start messaging</p>
-            </div>
+          <div className="text-center">
+            <PingUPLogo className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-muted-foreground mb-4" />
+            <h2 className="text-lg sm:text-2xl font-semibold mb-2">Welcome to PingUP</h2>
+            <p className="text-muted-foreground text-sm sm:text-base">Select a chat to start messaging</p>
+          </div>
           </div>
         )}
       </div>

@@ -64,3 +64,11 @@
 - [x] Install any additional packages if needed (e.g., for media handling)
 - [x] Verify responsive design on mobile/desktop
 - [x] Deploy and test security rules
+
+## 7. UI/UX Improvements
+- [x] Make update dialog more responsive on mobile
+- [x] Improve mobile responsiveness throughout the app
+  - Adjust sidebar width and visibility
+  - Optimize chat area layout for small screens
+  - Scale icons and text appropriately
+  - Add proper spacing and padding for mobile
