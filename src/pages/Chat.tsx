@@ -30,8 +30,9 @@ interface Message {
   id: string;
   senderId: string;
   text?: string;
-  imageUrl?: string;
-  voiceUrl?: string;
+  imageData?: string;
+  imageName?: string;
+  voiceData?: string;
   timestamp: number;
   reactions?: { [userId: string]: string };
   readBy?: { [userId: string]: number };
@@ -171,7 +172,7 @@ const Chat = () => {
             chatsData.push({
               chatId,
               otherUser: { uid: otherUserId, ...otherUserSnapshot.val() },
-              lastMessage: lastMessageData?.text || (lastMessageData?.imageUrl ? "[Image]" : null),
+              lastMessage: lastMessageData?.text || (lastMessageData?.imageData ? "[Image]" : lastMessageData?.voiceData ? "[Voice Message]" : null),
               timestamp: lastMessageData?.timestamp,
             });
           }
@@ -243,17 +244,22 @@ const Chat = () => {
     if (!selectedChat || !currentUser) return;
 
     try {
-      console.log("Uploading image:", file.name);
+      console.log("Processing image:", file.name);
 
-      const imageRef = storageRef(storage, `images/${Date.now()}_${file.name}`);
-      await uploadBytes(imageRef, file);
-      const imageUrl = await getDownloadURL(imageRef);
+      // Convert image to base64 for storage in Firebase Realtime Database
+      const base64Image = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-      console.log("Image uploaded, URL:", imageUrl);
+      console.log("Image converted to base64");
 
       const messageData = {
         senderId: currentUser.uid,
-        imageUrl,
+        imageData: base64Image,
+        imageName: file.name,
         timestamp: Date.now(),
         reactions: {},
         readBy: {},
@@ -265,14 +271,14 @@ const Chat = () => {
       // Update last message
       await set(ref(database, `chats/${selectedChat.chatId}/lastMessage`), {
         senderId: currentUser.uid,
-        imageUrl: "[Image]",
+        imageData: "[Image]",
         timestamp: Date.now(),
       });
 
       console.log("Image message sent to chat");
       toast.success("Image sent successfully!");
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error("Error processing image:", error);
       toast.error("Failed to send image");
     }
   };
@@ -281,13 +287,21 @@ const Chat = () => {
     if (!selectedChat || !currentUser) return;
 
     try {
-      const voiceRef = storageRef(storage, `voice/${Date.now()}_voice.webm`);
-      await uploadBytes(voiceRef, blob);
-      const voiceUrl = await getDownloadURL(voiceRef);
+      console.log("Processing voice note");
+
+      // Convert voice blob to base64 for storage in Firebase Realtime Database
+      const base64Voice = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      console.log("Voice converted to base64");
 
       const messageData = {
         senderId: currentUser.uid,
-        voiceUrl,
+        voiceData: base64Voice,
         timestamp: Date.now(),
         reactions: {},
         readBy: {},
@@ -299,14 +313,15 @@ const Chat = () => {
       // Update last message
       await set(ref(database, `chats/${selectedChat.chatId}/lastMessage`), {
         senderId: currentUser.uid,
-        voiceUrl: "[Voice Message]",
+        voiceData: "[Voice Message]",
         timestamp: Date.now(),
       });
 
+      console.log("Voice message sent to chat");
       toast.success("Voice message sent!");
     } catch (error) {
-      console.error("Error uploading voice note:", error);
-      toast.error("Failed to upload voice note");
+      console.error("Error processing voice note:", error);
+      toast.error("Failed to send voice message");
     }
   };
 
@@ -556,13 +571,18 @@ const Chat = () => {
                               : "bg-chat-received"
                           }`}
                         >
-                          {message.imageUrl && (
-                            <img src={message.imageUrl} alt="Shared image" className="rounded-lg max-w-full mb-2" />
+                          {message.imageData && (
+                            <div>
+                              <img src={message.imageData} alt={message.imageName || "Shared image"} className="rounded-lg max-w-full mb-2" />
+                              {message.imageName && (
+                                <p className="text-xs text-muted-foreground mb-2">{message.imageName}</p>
+                              )}
+                            </div>
                           )}
-                          {message.voiceUrl && (
+                          {message.voiceData && (
                             <div className="flex items-center gap-2">
                               <audio controls className="flex-1">
-                                <source src={message.voiceUrl} type="audio/webm" />
+                                <source src={message.voiceData} type="audio/webm" />
                               </audio>
                               <span className="text-xs text-muted-foreground">🎵 Voice</span>
                             </div>

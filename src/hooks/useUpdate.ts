@@ -27,7 +27,7 @@ export const useUpdate = () => {
     isInstalling: false,
     updateAvailable: false,
     updateInfo: null,
-    currentVersion: '1.6.0',
+    currentVersion: '1.7.0',
     downloadProgress: 0,
   });
 
