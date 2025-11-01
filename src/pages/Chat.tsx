@@ -9,12 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { Send, Search, LogOut, User, Image, Mic, Heart, Laugh, ThumbsUp, MoreVertical, Trash2, ArrowLeft } from "lucide-react";
+import { Send, Search, LogOut, User, Image, Mic, Heart, Laugh, ThumbsUp, MoreVertical, Trash2, ArrowLeft, RefreshCw } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePresence, useUserPresence } from "@/hooks/usePresence";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import PingUPLogo from "@/components/PingUPLogo";
+import { UpdateDialog } from "@/components/UpdateDialog";
 
 interface User {
   uid: string;
@@ -55,6 +56,7 @@ const Chat = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [following, setFollowing] = useState<{ [uid: string]: boolean }>({});
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -345,6 +347,14 @@ const Chat = () => {
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={() => setShowUpdateDialog(true)}
+                title="Check for Updates"
+              >
+                <RefreshCw className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={handleLogout}
                 title="Logout"
               >
@@ -591,6 +601,11 @@ const Chat = () => {
           </div>
         )}
       </div>
+
+      <UpdateDialog
+        open={showUpdateDialog}
+        onOpenChange={setShowUpdateDialog}
+      />
     </div>
   );
 };

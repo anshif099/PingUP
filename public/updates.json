@@ -1,0 +1,21 @@
+{
+  "latest": {
+    "version": "1.2.0",
+    "features": [
+      "Enhanced mobile responsiveness with fullscreen chat view",
+      "Improved typing indicators and read receipts",
+      "Added message reactions (❤️ 😂 👍)",
+      "Voice note support for richer communication",
+      "Dark/Light mode toggle for better user experience",
+      "Online/Offline status and last seen functionality",
+      "Follow/Unfollow users feature",
+      "Message deletion for better privacy control",
+      "Firebase Cloud Messaging for instant notifications",
+      "Secure database rules for data protection"
+    ],
+    "changelog": "This update brings significant improvements to the PingUP chat experience:\n\n- Mobile-first design with WhatsApp-like navigation\n- Real-time features including presence, typing, and reactions\n- Enhanced security with proper Firebase rules\n- Media support for images and voice notes\n- Theme customization options\n- Improved user privacy controls\n\nAll features are now fully functional and tested.",
+    "releaseDate": "2024-01-15",
+    "size": "2.5 MB",
+    "downloadUrl": "/updates/pingup-v1.2.0.zip"
+  }
+}
