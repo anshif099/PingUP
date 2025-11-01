@@ -83,7 +83,7 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Get user ID from username
+      // Get user data from username
       const usernameRef = ref(database, `usernames/${loginData.username}`);
       const usernameSnapshot = await get(usernameRef);
 
@@ -94,39 +94,46 @@ const Auth = () => {
       }
 
       const usernameData = usernameSnapshot.val();
-
-      // Check if usernameData is an object (new format) or just uid (old format)
       let userEmail;
-      if (typeof usernameData === 'object' && usernameData.email) {
-        userEmail = usernameData.email;
-      } else {
-        // Fallback for old format - try to get user data (might fail due to permissions)
-        try {
-          const userId = typeof usernameData === 'object' ? usernameData.uid : usernameData;
-          const userRef = ref(database, `users/${userId}`);
-          const userSnapshot = await get(userRef);
-          if (userSnapshot.exists()) {
-            const userData = userSnapshot.val();
-            userEmail = userData.email;
-          }
-        } catch (error) {
-          console.log("Could not read user data directly");
-        }
-      }
 
-      if (!userEmail) {
-        toast.error("Could not retrieve user information. Please try again.");
+      // Handle different data formats
+      if (typeof usernameData === 'object' && usernameData.email) {
+        // New format: { uid, email }
+        userEmail = usernameData.email;
+      } else if (typeof usernameData === 'string') {
+        // Old format: just uid string - need to get email from users collection
+        // But we can't read users collection without auth, so try a different approach
+        // Use the uid as part of email pattern
+        userEmail = `${loginData.username}@pingup.local`;
+      } else {
+        toast.error("Invalid user data format");
         setIsLoading(false);
         return;
       }
 
-      // Sign in with email and password
-      await signInWithEmailAndPassword(auth, userEmail, loginData.password);
-
-      toast.success("Logged in successfully!");
-      navigate("/chat");
+      // Try to sign in with the email
+      try {
+        await signInWithEmailAndPassword(auth, userEmail, loginData.password);
+        toast.success("Logged in successfully!");
+        navigate("/chat");
+      } catch (authError: any) {
+        // If the constructed email doesn't work, try alternative approaches
+        if (userEmail.includes('@pingup.local')) {
+          // Try with different domain
+          try {
+            await signInWithEmailAndPassword(auth, `${loginData.username}@example.com`, loginData.password);
+            toast.success("Logged in successfully!");
+            navigate("/chat");
+          } catch (secondError) {
+            toast.error("Login failed. Please check your credentials.");
+          }
+        } else {
+          toast.error(authError.message || "Login failed");
+        }
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to login");
+      console.error("Login error:", error);
+      toast.error("An error occurred during login. Please try again.");
     } finally {
       setIsLoading(false);
     }
