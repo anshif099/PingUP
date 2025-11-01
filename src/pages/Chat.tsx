@@ -596,13 +596,25 @@ const Chat = () => {
                     <Button
                       size="sm"
                       onClick={async () => {
-                        if (selectedImage) {
-                          await handleImageUpload(selectedImage);
-                          setSelectedImage(null);
-                          setImagePreview(null);
-                          if (fileInputRef.current) {
-                            fileInputRef.current.value = '';
+                        console.log("Send button clicked, selectedImage:", selectedImage);
+                        console.log("selectedChat:", selectedChat);
+                        console.log("currentUser:", currentUser);
+                        if (selectedImage && selectedChat && currentUser) {
+                          try {
+                            await handleImageUpload(selectedImage);
+                            console.log("Image upload completed successfully");
+                            setSelectedImage(null);
+                            setImagePreview(null);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = '';
+                            }
+                          } catch (error) {
+                            console.error("Error in send button click:", error);
+                            toast.error("Failed to send image");
                           }
+                        } else {
+                          console.log("Missing required data for image upload");
+                          toast.error("Unable to send image - missing chat or user data");
                         }
                       }}
                     >
