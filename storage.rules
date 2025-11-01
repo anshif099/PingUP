@@ -1,8 +1,13 @@
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
+    // Allow only authenticated users to read and upload files
+    match /images/{allImages=**} {
       allow read, write: if request.auth != null;
     }
-  }
-}
+
+    // You can add more paths for videos, profile pics, etc.
+    match /user_uploads/{allFiles=**} {
+      allow read, write: if request.auth != null;
+    }
