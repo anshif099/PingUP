@@ -167,7 +167,7 @@ const Chat = () => {
             chatsData.push({
               chatId,
               otherUser: { uid: otherUserId, ...otherUserSnapshot.val() },
-              lastMessage: lastMessageData?.text,
+              lastMessage: lastMessageData?.text || (lastMessageData?.imageUrl ? "[Image]" : null),
               timestamp: lastMessageData?.timestamp,
             });
           }
@@ -238,29 +238,39 @@ const Chat = () => {
   const handleImageUpload = async (file: File) => {
     if (!selectedChat || !currentUser) return;
 
-    console.log("Uploading image:", file.name);
+    try {
+      console.log("Uploading image:", file.name);
 
-    const imageRef = storageRef(storage, `images/${Date.now()}_${file.name}`);
-    await uploadBytes(imageRef, file);
-    const imageUrl = await getDownloadURL(imageRef);
+      const imageRef = storageRef(storage, `images/${Date.now()}_${file.name}`);
+      await uploadBytes(imageRef, file);
+      const imageUrl = await getDownloadURL(imageRef);
 
-    console.log("Image uploaded, URL:", imageUrl);
+      console.log("Image uploaded, URL:", imageUrl);
 
-    const messageData = {
-      senderId: currentUser.uid,
-      imageUrl,
-      timestamp: Date.now(),
-      reactions: {},
-      readBy: {},
-    };
+      const messageData = {
+        senderId: currentUser.uid,
+        imageUrl,
+        timestamp: Date.now(),
+        reactions: {},
+        readBy: {},
+      };
 
-    const messagesRef = ref(database, `chats/${selectedChat.chatId}/messages`);
-    await push(messagesRef, messageData);
+      const messagesRef = ref(database, `chats/${selectedChat.chatId}/messages`);
+      await push(messagesRef, messageData);
 
-    // Update last message
-    await set(ref(database, `chats/${selectedChat.chatId}/lastMessage`), messageData);
+      // Update last message
+      await set(ref(database, `chats/${selectedChat.chatId}/lastMessage`), {
+        senderId: currentUser.uid,
+        imageUrl: "[Image]",
+        timestamp: Date.now(),
+      });
 
-    console.log("Image message sent to chat");
+      console.log("Image message sent to chat");
+      toast.success("Image sent successfully!");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Failed to send image");
+    }
   };
 
   const handleVoiceNote = async (blob: Blob) => {
