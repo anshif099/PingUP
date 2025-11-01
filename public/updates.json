@@ -1,15 +1,18 @@
 {
   "latest": {
-    "version": "1.4.0",
+    "version": "1.5.0",
     "features": [
+      "Added voice message functionality - hold to record and send voice notes",
       "Fixed photo sending functionality with image preview",
       "Users can now select and preview images before sending",
       "Improved image upload experience with send/cancel options",
-      "Enhanced chat interface for better media sharing"
+      "Enhanced chat interface for better media sharing",
+      "Voice messages with audio playback controls",
+      "Real-time recording feedback with visual indicators"
     ],
-    "changelog": "This update improves the photo sharing experience:\n\n- Fixed image sending functionality\n- Added image preview before sending\n- Users can now review selected photos before sharing\n- Improved media upload workflow with send/cancel options\n- Better visual feedback for image selection\n\nPhoto sharing is now more reliable and user-friendly!",
+    "changelog": "This update brings exciting new voice messaging features!\n\n🎙️ **New Voice Messages:**\n- Hold the microphone button to record voice messages\n- Visual feedback during recording (red pulsing button)\n- Automatic upload and instant playback\n- Voice messages appear in chat with audio controls\n\n📸 **Enhanced Photo Sharing:**\n- Fixed image sending functionality\n- Added image preview before sending\n- Users can now review selected photos before sharing\n- Improved media upload workflow with send/cancel options\n- Better visual feedback for image selection\n\nVoice messaging makes PingUP even more like WhatsApp! Users can now send voice notes by simply holding the mic button while speaking.",
     "releaseDate": "2024-12-19",
-    "size": "2.4 MB",
-    "downloadUrl": "/updates/pingup-v1.4.0.zip"
+    "size": "2.5 MB",
+    "downloadUrl": "/updates/pingup-v1.5.0.zip"
   }
 }
