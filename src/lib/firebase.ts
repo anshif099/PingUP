@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 import { getMessaging } from "firebase/messaging";
@@ -22,5 +22,10 @@ export const auth = getAuth(app);
 export const database = getDatabase(app);
 export const storage = getStorage(app);
 export const messaging = getMessaging(app);
+
+// Set persistence to browser local storage to maintain login state
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Failed to set auth persistence:", error);
+});
 
 export default app;
