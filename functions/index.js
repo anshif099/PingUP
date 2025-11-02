@@ -14,6 +14,12 @@ exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/
     // Determine the recipient (not the sender)
     const recipientId = message.senderId === userId1 ? userId2 : userId1;
 
+    // Skip notification if recipient is the same as sender (shouldn't happen, but safety check)
+    if (recipientId === message.senderId) {
+      console.log('Recipient is same as sender, skipping notification');
+      return null;
+    }
+
     // Get recipient's user data
     const userRef = admin.database().ref(`/users/${recipientId}`);
     const userSnapshot = await userRef.once('value');
@@ -48,9 +54,9 @@ exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/
     const notificationPayload = {
       title: `PingUP ${senderData.name}`,
       body: message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message'),
-      icon: '/PingUP.jpg',
-      badge: '/PingUP.jpg',
-      click_action: `https://your-app-url.com/chat?user=${message.senderId}`,
+      icon: 'https://pingup-chat-app.vercel.app/PingUP.jpg',
+      badge: 'https://pingup-chat-app.vercel.app/PingUP.jpg',
+      click_action: `https://pingup-chat-app.vercel.app/chat?user=${message.senderId}`,
       data: {
         chatId: chatId,
         senderId: message.senderId,
@@ -60,6 +66,8 @@ exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/
 
     // Send notifications to all tokens
     const tokenArray = Object.values(tokens);
+    console.log(`Sending notifications to ${tokenArray.length} tokens for user ${recipientId}`);
+
     const promises = tokenArray.map(token =>
       admin.messaging().send({
         token: token,
@@ -86,16 +94,33 @@ exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/
               sound: 'default'
             }
           }
+        },
+        webpush: {
+          headers: {
+            Urgency: 'high'
+          },
+          notification: {
+            ...notificationPayload,
+            requireInteraction: true
+          }
         }
       })
     );
 
     try {
-      await Promise.all(promises);
-      console.log('Notifications sent successfully');
+      const results = await Promise.allSettled(promises);
+      const successful = results.filter(result => result.status === 'fulfilled').length;
+      const failed = results.filter(result => result.status === 'rejected').length;
+
+      console.log(`Notifications sent: ${successful} successful, ${failed} failed`);
+
+      if (failed > 0) {
+        console.error('Failed notifications:', results.filter(result => result.status === 'rejected'));
+      }
+
+      return { successful, failed };
     } catch (error) {
       console.error('Error sending notifications:', error);
+      return null;
     }
-
-    return null;
   });
