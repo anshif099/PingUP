@@ -84,7 +84,15 @@ const Auth = () => {
     } catch (error: any) {
       console.error("Registration error:", error);
       if (error.message?.includes('email-already-in-use')) {
-        toast.error("This username is already taken. Please choose a different one.");
+        // If email already in use, try to delete the username entry and retry
+        try {
+          // Delete the username entry that might be orphaned
+          await set(ref(database, `usernames/${registerData.username}`), null);
+          toast.error("Previous registration was incomplete. Please try registering again.");
+        } catch (deleteError) {
+          console.error("Failed to clean up username entry:", deleteError);
+          toast.error("This username is already taken. Please choose a different one.");
+        }
       } else {
         toast.error(error.message || "Failed to create account");
       }
