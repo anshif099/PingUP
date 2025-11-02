@@ -36,8 +36,8 @@ const Admin = () => {
         const userSnapshot = await get(userRef);
         if (userSnapshot.exists()) {
           const userData = userSnapshot.val();
-          // Allow admin access if username is "admin" or email contains "admin"
-          if (userData.username === 'admin' || userData.email?.includes('admin')) {
+          // Allow admin access only if username is "Admin"
+          if (userData.username === 'Admin') {
             setIsAdmin(true);
           } else {
             setError('Access denied. Admin privileges required.');
