@@ -124,15 +124,15 @@ const Chat = () => {
     if (selectedChat) {
       const messagesRef = ref(database, `chats/${selectedChat.chatId}/messages`);
       const unsubscribe = onValue(messagesRef, (snapshot) => {
-        const messagesData: Message[] = [];
-        snapshot.forEach((childSnapshot) => {
-          messagesData.push({ id: childSnapshot.key!, ...childSnapshot.val() });
-        });
-        setMessages(messagesData.sort((a, b) => a.timestamp - b.timestamp));
-      });
+        if (snapshot.exists()) {
+          const messagesData = snapshot.val();
+          const messagesArray = Object.entries(messagesData)
+            .map(([id, msg]: [string, any]) => ({ id, ...msg }))
+            .sort((a, b) => a.timestamp - b.timestamp);
 
-      // Listen for typing status
-      const typingRef = ref(database, `chats/${selectedChat.chatId}/typing/${selectedChat.otherUser.uid}`);
+          // Check for new messages from other users
+          const newMessages = messagesArray.filter(msg =>
+            msg.senderId !== currentUser?.uid &&
       const unsubscribeTyping = onValue(typingRef, (snapshot) => {
         setIsTyping(snapshot.val() === true);
       });
