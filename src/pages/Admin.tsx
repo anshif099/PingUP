@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ref, get } from "firebase/database";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, database } from "@/lib/firebase";
+import { database } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, Users, Shield } from "lucide-react";
@@ -22,82 +23,122 @@ interface UserData {
 const Admin = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginData, setLoginData] = useState({
+    username: "",
+    password: "",
+  });
 
-  useEffect(() => {
-    // Check if current user is admin
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Check if user is admin (you can modify this logic)
-        // For now, let's assume admin username is "admin" or email contains "admin"
-        const userRef = ref(database, `users/${user.uid}`);
-        const userSnapshot = await get(userRef);
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.val();
-          // Allow admin access only if username is "Admin"
-          if (userData.username === 'Admin') {
-            setIsAdmin(true);
-          } else {
-            setError('Access denied. Admin privileges required.');
-            toast.error('Access denied. Admin privileges required.');
-          }
-        }
-      } else {
-        navigate('/auth');
-      }
-    });
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginData.username === "Admin" && loginData.password === "Admin@123") {
+      setIsLoggedIn(true);
+      fetchUsers();
+    } else {
+      toast.error("Invalid admin credentials");
+    }
+  };
 
-    return () => unsubscribe();
-  }, [navigate]);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const usersRef = ref(database, 'users');
+      const snapshot = await get(usersRef);
 
-  useEffect(() => {
-    if (!isAdmin) return;
-
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const usersRef = ref(database, 'users');
-        const snapshot = await get(usersRef);
-
-        if (snapshot.exists()) {
-          const usersData: UserData[] = [];
-          snapshot.forEach((childSnapshot) => {
-            const userData = childSnapshot.val();
-            usersData.push({
-              uid: childSnapshot.key!,
-              name: userData.name || 'N/A',
-              username: userData.username || 'N/A',
-              email: userData.email || 'N/A',
-              createdAt: userData.createdAt || 0,
-              following: userData.following || {},
-              followers: userData.followers || {},
-            });
+      if (snapshot.exists()) {
+        const usersData: UserData[] = [];
+        snapshot.forEach((childSnapshot) => {
+          const userData = childSnapshot.val();
+          usersData.push({
+            uid: childSnapshot.key!,
+            name: userData.name || 'N/A',
+            username: userData.username || 'N/A',
+            email: userData.email || 'N/A',
+            createdAt: userData.createdAt || 0,
+            following: userData.following || {},
+            followers: userData.followers || {},
           });
+        });
 
-          // Sort users by creation date (newest first)
-          usersData.sort((a, b) => b.createdAt - a.createdAt);
-          setUsers(usersData);
-        } else {
-          setUsers([]);
-        }
-      } catch (err: any) {
-        console.error('Error fetching users:', err);
-        setError('Failed to load users data');
-        toast.error('Failed to load users data');
-      } finally {
-        setLoading(false);
+        // Sort users by creation date (newest first)
+        usersData.sort((a, b) => b.createdAt - a.createdAt);
+        setUsers(usersData);
+      } else {
+        setUsers([]);
       }
-    };
-
-    fetchUsers();
-  }, []);
+    } catch (err: any) {
+      console.error('Error fetching users:', err);
+      setError('Failed to load users data');
+      toast.error('Failed to load users data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatDate = (timestamp: number) => {
     if (!timestamp) return 'N/A';
     return new Date(timestamp).toLocaleString();
   };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-6 w-6" />
+              Admin Login
+            </CardTitle>
+            <CardDescription>
+              Enter admin credentials to access the admin panel
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Admin username"
+                  value={loginData.username}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, username: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Admin password"
+                  value={loginData.password}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Login
+              </Button>
+            </form>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/')}
+              className="w-full mt-4"
+            >
+              Back to App
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -116,8 +157,8 @@ const Admin = () => {
             <CardDescription>{error}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate('/chat')} className="w-full">
-              Back to Chat
+            <Button onClick={() => setIsLoggedIn(false)} className="w-full">
+              Back to Login
             </Button>
           </CardContent>
         </Card>
@@ -133,11 +174,11 @@ const Admin = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/chat')}
+              onClick={() => navigate('/')}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Chat
+              Back to App
             </Button>
             <div className="flex items-center gap-2">
               <Shield className="h-6 w-6" />
