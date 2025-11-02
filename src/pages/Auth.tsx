@@ -143,6 +143,14 @@ const Auth = () => {
       // Also try the username as email directly (for very old accounts)
       authEmails.push(loginData.username);
 
+      // Try common email formats if username doesn't contain @
+      if (!loginData.username.includes('@')) {
+        authEmails.push(`${loginData.username}@gmail.com`);
+        authEmails.push(`${loginData.username}@yahoo.com`);
+        authEmails.push(`${loginData.username}@hotmail.com`);
+        authEmails.push(`${loginData.username}@outlook.com`);
+      }
+
       console.log(`Attempting login with possible emails:`, authEmails);
 
       let loginSuccess = false;
