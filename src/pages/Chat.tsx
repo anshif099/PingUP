@@ -138,8 +138,8 @@ const Chat = () => {
 
           // Show notifications for new messages
           newMessages.forEach(message => {
-            if (Notification.permission === 'granted' && document.hidden) {
-              // Only show notification if tab is not active
+            if (Notification.permission === 'granted' && !document.hasFocus()) {
+              // Only show notification if document does not have focus
               const notification = new Notification(`PingUP ${selectedChat.otherUser.name}`, {
                 body: message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message'),
                 icon: '/PingUP.jpg',
