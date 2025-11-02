@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ref, get } from "firebase/database";
 import { database } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, Users, Shield } from "lucide-react";
@@ -23,23 +21,12 @@ interface UserData {
 const Admin = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserData[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loginData, setLoginData] = useState({
-    username: "",
-    password: "",
-  });
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loginData.username === "Admin" && loginData.password === "Admin@1234") {
-      setIsLoggedIn(true);
-      fetchUsers();
-    } else {
-      toast.error("Invalid admin credentials");
-    }
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -82,64 +69,6 @@ const Admin = () => {
     return new Date(timestamp).toLocaleString();
   };
 
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-6 w-6" />
-              Admin Login
-            </CardTitle>
-            <CardDescription>
-              Enter admin credentials to access the admin panel
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Admin username"
-                  value={loginData.username}
-                  onChange={(e) =>
-                    setLoginData({ ...loginData, username: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Admin password"
-                  value={loginData.password}
-                  onChange={(e) =>
-                    setLoginData({ ...loginData, password: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
-            </form>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/')}
-              className="w-full mt-4"
-            >
-              Back to App
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -157,8 +86,8 @@ const Admin = () => {
             <CardDescription>{error}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => setIsLoggedIn(false)} className="w-full">
-              Back to Login
+            <Button onClick={() => navigate('/')} className="w-full">
+              Back to App
             </Button>
           </CardContent>
         </Card>

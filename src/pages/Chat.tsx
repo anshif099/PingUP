@@ -420,11 +420,20 @@ const Chat = () => {
       {/* Sidebar */}
       <div className={`w-80 border-r bg-sidebar-bg flex flex-col md:w-64 ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
          <div className="p-2 sm:p-4 border-b space-y-4">
-           <div className="flex items-center justify-between">
+             <div className="flex items-center justify-between">
              <div className="flex items-center gap-2">
                <PingUPLogo className="w-6 h-6 sm:w-8 sm:h-8" />
              </div>
              <div className="flex items-center gap-1 sm:gap-2">
+               <Button
+                 variant="ghost"
+                 size="sm"
+                 onClick={() => navigate('/admin')}
+                 title="Admin Panel"
+                 className="text-sm"
+               >
+                 Admin
+               </Button>
                <ThemeToggle />
               <Button
                 variant="ghost"
