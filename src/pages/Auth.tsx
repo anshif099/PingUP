@@ -99,12 +99,40 @@ const Auth = () => {
 
     try {
       // Check for admin login
-      if (loginData.username === "PingUP" && loginData.password === "PingUP123") {
-        // Admin login - redirect to admin panel
-        navigate("/admin");
-        toast.success("Admin login successful!");
-        setIsLoading(false);
-        return;
+      if (loginData.username === "PingUP") {
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, "admin@pingup.local", loginData.password);
+          navigate("/admin");
+          toast.success("Admin login successful!");
+          setIsLoading(false);
+          return;
+        } catch (error: any) {
+          if (error.code === 'auth/user-not-found') {
+            try {
+              const userCredential = await createUserWithEmailAndPassword(auth, "admin@pingup.local", loginData.password);
+              await set(ref(database, `users/${userCredential.user.uid}`), {
+                name: "Admin",
+                email: "admin@pingup.local",
+                username: "PingUP",
+                createdAt: Date.now(),
+                following: {},
+                followers: {},
+              });
+              navigate("/admin");
+              toast.success("Admin account created and logged in!");
+              setIsLoading(false);
+              return;
+            } catch (createError: any) {
+              toast.error("Failed to create admin account");
+              setIsLoading(false);
+              return;
+            }
+          } else {
+            toast.error("Admin login failed");
+            setIsLoading(false);
+            return;
+          }
+        }
       }
 
       // Try to get the auth email from the usernames collection
