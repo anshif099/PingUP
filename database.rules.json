@@ -2,6 +2,10 @@
   "rules": {
     ".read": "auth != null",
     ".write": "auth != null",
+    "usernames": {
+      ".read": true,
+      ".write": true
+    },
     "users": {
       "$userId": {
         ".read": "auth != null && (auth.uid == $userId || root.child('users').child(auth.uid).child('following').hasChild($userId) || root.child('users').child($userId).child('following').hasChild(auth.uid))",
@@ -22,14 +26,6 @@
           ".read": "auth != null",
           ".write": "auth != null && auth.uid == $userId"
         }
-      }
-    },
-    "usernames": {
-      ".read": true,
-      ".write": true,
-      "$username": {
-        ".read": true,
-        ".write": true
       }
     },
     "userChats": {

@@ -112,17 +112,48 @@ const Auth = () => {
       let authEmail;
 
       // Get the auth email from the stored data
-      if (typeof usernameData === 'object' && usernameData.authEmail) {
-        authEmail = usernameData.authEmail;
+      if (typeof usernameData === 'object') {
+        if (usernameData.authEmail) {
+          authEmail = usernameData.authEmail;
+        } else if (usernameData.displayEmail) {
+          authEmail = usernameData.displayEmail;
+        } else {
+          authEmail = `${loginData.username}@pingup.local`;
+        }
       } else {
-        // Fallback for old format - construct the email
-        authEmail = `${loginData.username}@pingup.local`;
+        // For old accounts where usernames collection stores uid directly
+        const uid = usernameData;
+        const userRef = ref(database, `users/${uid}`);
+        const userSnapshot = await get(userRef);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.val();
+          authEmail = userData.email || `${loginData.username}@pingup.local`;
+        } else {
+          authEmail = `${loginData.username}@pingup.local`;
+        }
       }
 
       console.log(`Attempting login with email: ${authEmail}`);
 
       // Sign in with the auth email
-      await signInWithEmailAndPassword(auth, authEmail, loginData.password);
+      try {
+        await signInWithEmailAndPassword(auth, authEmail, loginData.password);
+      } catch (loginError: any) {
+        console.error("Login attempt failed with email:", authEmail, loginError);
+
+        // If user-not-found and we used generated email, try with real email if available
+        if (loginError.code === 'auth/user-not-found' && authEmail.includes('@pingup.local')) {
+          const realEmail = (typeof usernameData === 'object' && usernameData.displayEmail) ? usernameData.displayEmail : null;
+          if (realEmail && realEmail !== authEmail) {
+            console.log(`Retrying login with real email: ${realEmail}`);
+            await signInWithEmailAndPassword(auth, realEmail, loginData.password);
+          } else {
+            throw loginError;
+          }
+        } else {
+          throw loginError;
+        }
+      }
 
       console.log("Login successful!");
       toast.success("Logged in successfully!");
