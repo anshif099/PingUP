@@ -98,6 +98,15 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      // Check for admin login
+      if (loginData.username === "PingUP" && loginData.password === "PingUP123") {
+        // Admin login - redirect to admin panel
+        navigate("/admin");
+        toast.success("Admin login successful!");
+        setIsLoading(false);
+        return;
+      }
+
       // Try to get the auth email from the usernames collection
       const usernameRef = ref(database, `usernames/${loginData.username}`);
       const usernameSnapshot = await get(usernameRef);
