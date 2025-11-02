@@ -7,6 +7,7 @@
       ".write": true
     },
     "users": {
+      ".read": "auth != null",
       "$userId": {
         ".read": "auth != null && (auth.uid == $userId || root.child('users').child(auth.uid).child('following').hasChild($userId) || root.child('users').child($userId).child('following').hasChild(auth.uid))",
         ".write": "auth != null && auth.uid == $userId",
