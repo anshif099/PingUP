@@ -33,7 +33,7 @@ const Admin = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginData.username === "Admin" && loginData.password === "Admin@123") {
+    if (loginData.username === "Admin" && loginData.password === "Admin@1234") {
       setIsLoggedIn(true);
       fetchUsers();
     } else {
