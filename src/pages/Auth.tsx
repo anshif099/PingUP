@@ -109,53 +109,61 @@ const Auth = () => {
       }
 
       const usernameData = usernameSnapshot.val();
-      let authEmail;
+      let authEmails = [];
 
-      // Get the auth email from the stored data
+      // Get possible auth emails to try
       if (typeof usernameData === 'object') {
+        // New account structure
         if (usernameData.authEmail) {
-          authEmail = usernameData.authEmail;
-        } else if (usernameData.displayEmail) {
-          authEmail = usernameData.displayEmail;
-        } else {
-          authEmail = `${loginData.username}@pingup.local`;
+          authEmails.push(usernameData.authEmail);
+        }
+        if (usernameData.displayEmail && usernameData.displayEmail !== usernameData.authEmail) {
+          authEmails.push(usernameData.displayEmail);
+        }
+        if (!usernameData.authEmail && !usernameData.displayEmail) {
+          authEmails.push(`${loginData.username}@pingup.local`);
         }
       } else {
-        // For old accounts where usernames collection stores uid directly
+        // Old account structure - usernames collection stores uid directly
         const uid = usernameData;
         const userRef = ref(database, `users/${uid}`);
         const userSnapshot = await get(userRef);
         if (userSnapshot.exists()) {
           const userData = userSnapshot.val();
-          authEmail = userData.email || `${loginData.username}@pingup.local`;
-        } else {
-          authEmail = `${loginData.username}@pingup.local`;
-        }
-      }
-
-      console.log(`Attempting login with email: ${authEmail}`);
-
-      // Sign in with the auth email
-      try {
-        await signInWithEmailAndPassword(auth, authEmail, loginData.password);
-      } catch (loginError: any) {
-        console.error("Login attempt failed with email:", authEmail, loginError);
-
-        // If user-not-found and we used generated email, try with real email if available
-        if (loginError.code === 'auth/user-not-found' && authEmail.includes('@pingup.local')) {
-          const realEmail = (typeof usernameData === 'object' && usernameData.displayEmail) ? usernameData.displayEmail : null;
-          if (realEmail && realEmail !== authEmail) {
-            console.log(`Retrying login with real email: ${realEmail}`);
-            await signInWithEmailAndPassword(auth, realEmail, loginData.password);
-          } else {
-            throw loginError;
+          // For old accounts, try real email first, then generated email
+          if (userData.email) {
+            authEmails.push(userData.email);
           }
+          authEmails.push(`${loginData.username}@pingup.local`);
         } else {
-          throw loginError;
+          authEmails.push(`${loginData.username}@pingup.local`);
         }
       }
 
-      console.log("Login successful!");
+      console.log(`Attempting login with possible emails:`, authEmails);
+
+      let loginSuccess = false;
+      let lastError = null;
+
+      // Try each possible email until one works
+      for (const email of authEmails) {
+        try {
+          console.log(`Trying login with email: ${email}`);
+          await signInWithEmailAndPassword(auth, email, loginData.password);
+          console.log("Login successful!");
+          loginSuccess = true;
+          break;
+        } catch (loginError: any) {
+          console.error(`Login attempt failed with email ${email}:`, loginError);
+          lastError = loginError;
+          // Continue to next email if this one failed
+        }
+      }
+
+      if (!loginSuccess) {
+        throw lastError;
+      }
+
       toast.success("Logged in successfully!");
       navigate("/chat");
 
