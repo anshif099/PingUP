@@ -9,6 +9,7 @@ import { onAuthStateChanged, setPersistence, browserLocalPersistence } from "fir
 import { auth } from "@/lib/firebase";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={user ? <Chat /> : <Auth />} />
               <Route path="/chat" element={user ? <Chat /> : <Auth />} />
+              <Route path="/admin" element={user ? <Admin /> : <Auth />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
