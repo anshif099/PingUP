@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ref, get } from "firebase/database";
-import { database } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, database } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, Users, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserData {
@@ -23,8 +24,37 @@ const Admin = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Check if current user is admin
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Check if user is admin (you can modify this logic)
+        // For now, let's assume admin username is "admin" or email contains "admin"
+        const userRef = ref(database, `users/${user.uid}`);
+        const userSnapshot = await get(userRef);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.val();
+          // Allow admin access if username is "admin" or email contains "admin"
+          if (userData.username === 'admin' || userData.email?.includes('admin')) {
+            setIsAdmin(true);
+          } else {
+            setError('Access denied. Admin privileges required.');
+            toast.error('Access denied. Admin privileges required.');
+          }
+        }
+      } else {
+        navigate('/auth');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
     const fetchUsers = async () => {
       try {
         setLoading(true);
@@ -110,8 +140,8 @@ const Admin = () => {
               Back to Chat
             </Button>
             <div className="flex items-center gap-2">
-              <Users className="h-6 w-6" />
-              <h1 className="text-2xl font-bold">User Administration</h1>
+              <Shield className="h-6 w-6" />
+              <h1 className="text-2xl font-bold">Admin Panel</h1>
             </div>
           </div>
           <div className="text-sm text-muted-foreground">
