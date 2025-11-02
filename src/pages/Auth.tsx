@@ -101,7 +101,7 @@ const Auth = () => {
       // Check for admin login
       if (loginData.username === "PingUP") {
         try {
-          const userCredential = await signInWithEmailAndPassword(auth, "admin@pingup.local", loginData.password);
+          const userCredential = await signInWithEmailAndPassword(auth, "admin@pingup.local", "PingUP123");
           navigate("/admin");
           toast.success("Admin login successful!");
           setIsLoading(false);
@@ -109,7 +109,7 @@ const Auth = () => {
         } catch (error: any) {
           if (error.code === 'auth/user-not-found') {
             try {
-              const userCredential = await createUserWithEmailAndPassword(auth, "admin@pingup.local", loginData.password);
+              const userCredential = await createUserWithEmailAndPassword(auth, "admin@pingup.local", "PingUP123");
               await set(ref(database, `users/${userCredential.user.uid}`), {
                 name: "Admin",
                 email: "admin@pingup.local",
