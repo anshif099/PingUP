@@ -133,6 +133,40 @@ const Chat = () => {
           // Check for new messages from other users
           const newMessages = messagesArray.filter(msg =>
             msg.senderId !== currentUser?.uid &&
+            !messages.some(existingMsg => existingMsg.id === msg.id)
+          );
+
+          // Show notifications for new messages
+          newMessages.forEach(message => {
+            if (Notification.permission === 'granted' && document.hidden) {
+              // Only show notification if tab is not active
+              const notification = new Notification(`PingUP ${selectedChat.otherUser.name}`, {
+                body: message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message'),
+                icon: '/PingUP.jpg',
+                badge: '/PingUP.jpg',
+                tag: `chat-${selectedChat.chatId}`, // Group notifications for same chat
+                requireInteraction: false
+              });
+
+              // Auto-close notification after 5 seconds
+              setTimeout(() => {
+                notification.close();
+              }, 5000);
+
+              // Click handler to focus the window
+              notification.onclick = () => {
+                window.focus();
+                notification.close();
+              };
+            }
+          });
+
+          setMessages(messagesArray);
+        }
+      });
+
+      // Listen for typing status
+      const typingRef = ref(database, `chats/${selectedChat.chatId}/typing/${selectedChat.otherUser.uid}`);
       const unsubscribeTyping = onValue(typingRef, (snapshot) => {
         setIsTyping(snapshot.val() === true);
       });
