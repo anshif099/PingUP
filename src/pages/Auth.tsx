@@ -140,6 +140,9 @@ const Auth = () => {
         }
       }
 
+      // Also try the username as email directly (for very old accounts)
+      authEmails.push(loginData.username);
+
       console.log(`Attempting login with possible emails:`, authEmails);
 
       let loginSuccess = false;
