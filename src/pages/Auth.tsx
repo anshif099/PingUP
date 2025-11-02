@@ -46,9 +46,8 @@ const Auth = () => {
         return;
       }
 
-      // Create a unique email for Firebase Auth (since emails must be unique)
-      // We'll use the username with a domain to ensure uniqueness
-      const authEmail = `${registerData.username}@pingup.local`;
+      // Use the actual email provided by the user for Firebase Auth
+      const authEmail = registerData.email;
 
       console.log(`Creating user with email: ${authEmail}`);
 
@@ -64,18 +63,17 @@ const Auth = () => {
       // Store user data in database
       await set(ref(database, `users/${userCredential.user.uid}`), {
         name: registerData.name,
-        email: registerData.email, // Store the real email for display purposes
+        email: registerData.email,
         username: registerData.username,
         createdAt: Date.now(),
         following: {},
         followers: {},
       });
 
-      // Store username mapping with auth email for login
+      // Store username mapping for login
       await set(ref(database, `usernames/${registerData.username}`), {
         uid: userCredential.user.uid,
-        authEmail: authEmail, // Store the auth email for login
-        displayEmail: registerData.email // Store the real email for display
+        email: registerData.email
       });
 
       console.log("User data stored in database");
@@ -84,15 +82,7 @@ const Auth = () => {
     } catch (error: any) {
       console.error("Registration error:", error);
       if (error.message?.includes('email-already-in-use')) {
-        // If email already in use, try to delete the username entry and retry
-        try {
-          // Delete the username entry that might be orphaned
-          await set(ref(database, `usernames/${registerData.username}`), null);
-          toast.error("Previous registration was incomplete. Please try registering again.");
-        } catch (deleteError) {
-          console.error("Failed to clean up username entry:", deleteError);
-          toast.error("This username is already taken. Please choose a different one.");
-        }
+        toast.error("This email is already registered. Please use a different email or try logging in.");
       } else {
         toast.error(error.message || "Failed to create account");
       }
@@ -106,7 +96,7 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      // Try to get the auth email from the usernames collection
+      // Try to get the email from the usernames collection
       const usernameRef = ref(database, `usernames/${loginData.username}`);
       const usernameSnapshot = await get(usernameRef);
 
@@ -117,72 +107,30 @@ const Auth = () => {
       }
 
       const usernameData = usernameSnapshot.val();
-      let authEmails = [];
+      let authEmail = '';
 
-      // Get possible auth emails to try
-      if (typeof usernameData === 'object') {
-        // New account structure
-        if (usernameData.authEmail) {
-          authEmails.push(usernameData.authEmail);
-        }
-        if (usernameData.displayEmail && usernameData.displayEmail !== usernameData.authEmail) {
-          authEmails.push(usernameData.displayEmail);
-        }
-        if (!usernameData.authEmail && !usernameData.displayEmail) {
-          authEmails.push(`${loginData.username}@pingup.local`);
-        }
+      // Get the auth email to use for login
+      if (typeof usernameData === 'object' && usernameData.email) {
+        authEmail = usernameData.email;
       } else {
-        // Old account structure - usernames collection stores uid directly
+        // Fallback for old structure
         const uid = usernameData;
         const userRef = ref(database, `users/${uid}`);
         const userSnapshot = await get(userRef);
         if (userSnapshot.exists()) {
           const userData = userSnapshot.val();
-          // For old accounts, try real email first, then generated email
-          if (userData.email) {
-            authEmails.push(userData.email);
-          }
-          authEmails.push(`${loginData.username}@pingup.local`);
+          authEmail = userData.email || `${loginData.username}@pingup.local`;
         } else {
-          authEmails.push(`${loginData.username}@pingup.local`);
+          authEmail = `${loginData.username}@pingup.local`;
         }
       }
 
-      // Also try the username as email directly (for very old accounts)
-      authEmails.push(loginData.username);
+      console.log(`Attempting login with email: ${authEmail}`);
 
-      // Try common email formats if username doesn't contain @
-      if (!loginData.username.includes('@')) {
-        authEmails.push(`${loginData.username}@gmail.com`);
-        authEmails.push(`${loginData.username}@yahoo.com`);
-        authEmails.push(`${loginData.username}@hotmail.com`);
-        authEmails.push(`${loginData.username}@outlook.com`);
-      }
+      // Login with the email and password
+      await signInWithEmailAndPassword(auth, authEmail, loginData.password);
 
-      console.log(`Attempting login with possible emails:`, authEmails);
-
-      let loginSuccess = false;
-      let lastError = null;
-
-      // Try each possible email until one works
-      for (const email of authEmails) {
-        try {
-          console.log(`Trying login with email: ${email}`);
-          await signInWithEmailAndPassword(auth, email, loginData.password);
-          console.log("Login successful!");
-          loginSuccess = true;
-          break;
-        } catch (loginError: any) {
-          console.error(`Login attempt failed with email ${email}:`, loginError);
-          lastError = loginError;
-          // Continue to next email if this one failed
-        }
-      }
-
-      if (!loginSuccess) {
-        throw lastError;
-      }
-
+      console.log("Login successful!");
       toast.success("Logged in successfully!");
       navigate("/chat");
 
