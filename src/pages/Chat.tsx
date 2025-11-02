@@ -425,15 +425,6 @@ const Chat = () => {
                <PingUPLogo className="w-6 h-6 sm:w-8 sm:h-8" />
              </div>
              <div className="flex items-center gap-1 sm:gap-2">
-               <Button
-                 variant="ghost"
-                 size="sm"
-                 onClick={() => navigate('/admin')}
-                 title="Admin Panel"
-                 className="text-sm"
-               >
-                 Admin
-               </Button>
                <ThemeToggle />
               <Button
                 variant="ghost"
