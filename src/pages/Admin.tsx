@@ -31,8 +31,10 @@ const Admin = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('Fetching users from database...');
       const usersRef = ref(database, 'users');
       const snapshot = await get(usersRef);
+      console.log('Database snapshot exists:', snapshot.exists());
 
       if (snapshot.exists()) {
         const usersData: UserData[] = [];
