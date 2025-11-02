@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { ref, onValue, push, set, get, query, orderByChild, update, remove } from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getToken, onMessage } from "firebase/messaging";
 import { auth, database, storage, messaging } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +81,20 @@ const Chat = () => {
           setCurrentUser({ uid: user.uid, ...userData });
           setFollowing(userData.following || {});
           loadChats(user.uid);
+
+          // Update FCM token for this device
+          try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+              const token = await getToken(messaging, {
+                vapidKey: 'BJ4dZBUp-vZeKUwQW5JW4X0QmQRlGwmMriZfJaYjs23_6_vzpnO_HlGzhicfVE71hAgEHRaQ2st_XslgQZ6txIc'
+              });
+              const tokenRef = ref(database, `users/${user.uid}/fcmTokens/${Date.now()}`);
+              await set(tokenRef, token);
+            }
+          } catch (error) {
+            console.error('Error updating FCM token:', error);
+          }
         }
       } else {
         navigate("/");

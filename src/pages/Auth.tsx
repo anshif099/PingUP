@@ -155,9 +155,15 @@ const Auth = () => {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
           const token = await getToken(messaging, {
-            vapidKey: 'YOUR_VAPID_KEY_HERE' // You'll need to generate this from Firebase Console
+            vapidKey: 'BJ4dZBUp-vZeKUwQW5JW4X0QmQRlGwmMriZfJaYjs23_6_vzpnO_HlGzhicfVE71hAgEHRaQ2st_XslgQZ6txIc'
           });
           console.log('FCM Token:', token);
+
+          // Store FCM token in database if user is logged in
+          if (auth.currentUser) {
+            const tokenRef = ref(database, `users/${auth.currentUser.uid}/fcmTokens/${Date.now()}`);
+            await set(tokenRef, token);
+          }
         }
       } catch (error) {
         console.error('Error requesting notification permission:', error);
@@ -173,7 +179,8 @@ const Auth = () => {
       if (Notification.permission === 'granted') {
         new Notification(payload.notification?.title || 'New Message', {
           body: payload.notification?.body,
-          icon: '/favicon.ico'
+          icon: '/PingUP.jpg',
+          badge: '/PingUP.jpg'
         });
       }
     });

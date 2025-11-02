@@ -1,75 +1,27 @@
-# TODO: Add Missing Features to PingUP Chat App
+# PingUP Push Notifications Implementation
 
-## 1. User Profiles & Search Enhancements
-- [x] Add follow/unfollow functionality
-  - Store following/followers in Firebase DB (users/{uid}/following/{followedUid})
-  - Add follow/unfollow buttons in user search results
-  - Update UI to show follow status
+## Completed Tasks
+- [x] Created Firebase Cloud Function for sending push notifications
+- [x] Updated Auth.tsx to request notification permissions and store FCM tokens
+- [x] Updated Chat.tsx to update FCM tokens on login
+- [x] Updated App.tsx to handle foreground messages
+- [x] Added functions configuration to firebase.json
 
-## 2. Chat Features Enhancements
-- [x] Media Messages (Images and Voice Notes)
-  - Integrate Firebase Storage for uploads
-  - Add image upload button in chat input
-  - Add voice recording/upload functionality
-  - Store media URLs in message objects
-  - Display images/voice in chat
+## Next Steps
+- [ ] Deploy the Cloud Function to Firebase
+- [ ] Test notifications on web browser
+- [ ] Test notifications on mobile (Android/iOS) via Capacitor
+- [ ] Update database rules to allow FCM token storage
+- [ ] Handle notification click to open specific chat
+- [ ] Add notification settings/preferences
 
-- [x] Message Reactions
-  - Add reaction buttons (❤️ 😂 👍 etc.) to messages
-  - Store reactions in message object (reactions: {userId: emoji})
-  - Display reactions below messages
+## Deployment Instructions
+1. Install Firebase CLI if not already installed: `npm install -g firebase-tools`
+2. Login to Firebase: `firebase login`
+3. Deploy functions: `firebase deploy --only functions`
+4. Test the notifications by sending messages between users
 
-- [x] Typing Indicator
-  - Track typing status in DB (chats/{chatId}/typing/{userId})
-  - Show "typing..." in chat header when other user is typing
-
-- [x] Read Receipts
-  - Add read status to messages (readBy: {userId: timestamp})
-  - Update read status when messages are viewed
-  - Show read indicators (e.g., double checkmark)
-
-- [x] Message Deletion
-  - Add delete option for self or everyone
-  - Remove message from DB or mark as deleted
-
-## 3. Instant Notifications
-- [x] Integrate Firebase Cloud Messaging (FCM)
-  - Add FCM import to firebase.ts
-  - Request notification permission on login
-  - Send notifications on new messages (even when app is open)
-  - Include sender username and message preview
-
-## 4. Additional Features
-- [x] Online/Offline Status
-  - Track user presence in DB (users/{uid}/presence)
-  - Display online/offline in user profiles and chat headers
-
-- [x] Last Seen
-  - Store last seen timestamp in user profile
-  - Display last seen when user is offline
-
-- [x] Dark/Light Mode Toggle
-  - Add theme context/provider
-  - Create theme toggle component
-  - Apply theme classes throughout UI
-
-## 5. Security Rules
-- [x] Add Firebase Database Security Rules
-  - Protect user data (only owner can read/write)
-  - Protect messages (only chat participants can access)
-  - Create database.rules.json file
-- [x] Add Firebase Storage Security Rules (CORS and access rules)
-
-## 6. Testing and Followup
-- [x] Test all features: Auth, chat, media, notifications, etc.
-- [x] Install any additional packages if needed (e.g., for media handling)
-- [x] Verify responsive design on mobile/desktop
-- [x] Deploy and test security rules
-
-## 7. UI/UX Improvements
-- [x] Make update dialog more responsive on mobile
-- [x] Improve mobile responsiveness throughout the app
-  - Adjust sidebar width and visibility
-  - Optimize chat area layout for small screens
-  - Scale icons and text appropriately
-  - Add proper spacing and padding for mobile
+## Testing
+- Open the app in browser and mobile
+- Send messages between different user accounts
+- Check if push notifications appear with correct format: "PingUP [Sender Name]: [Message]"

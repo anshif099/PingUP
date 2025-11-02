@@ -6,7 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { onAuthStateChanged, setPersistence, browserLocalPersistence } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { onMessage } from "firebase/messaging";
+import { auth, messaging } from "@/lib/firebase";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
@@ -31,7 +32,23 @@ const App = () => {
         setLoading(false);
       });
 
-      return () => unsubscribe();
+      // Listen for foreground messages
+      const unsubscribeMessaging = onMessage(messaging, (payload) => {
+        console.log('Message received in App:', payload);
+        // Show notification even when app is open
+        if (Notification.permission === 'granted') {
+          new Notification(payload.notification?.title || 'New Message', {
+            body: payload.notification?.body,
+            icon: '/PingUP.jpg',
+            badge: '/PingUP.jpg'
+          });
+        }
+      });
+
+      return () => {
+        unsubscribe();
+        unsubscribeMessaging();
+      };
     };
 
     initAuth();
