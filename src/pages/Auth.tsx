@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { ref, set, get } from "firebase/database";
 import { getToken, onMessage } from "firebase/messaging";
+import { Capacitor } from "@capacitor/core";
+import { PushNotifications } from "@capacitor/push-notifications";
 import { auth, database, messaging } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,15 +62,41 @@ const Auth = () => {
 
       console.log("User created in Firebase Auth:", userCredential.user.uid);
 
+      // Request notification permissions and get FCM token
+      let fcmToken = null;
+      try {
+        if (Capacitor.isNativePlatform()) {
+          // Native platform
+          const permissionResult = await PushNotifications.requestPermissions();
+          if (permissionResult.receive === 'granted') {
+            await PushNotifications.register();
+            // Token will be handled by the listener in usePushNotifications hook
+          }
+        } else {
+          // Web platform
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            fcmToken = await getToken(messaging, {
+              vapidKey: 'BJ4dZBUp-vZeKUwQW5JW4X0QmQRlGwmMriZfJaYjs23_6_vzpnO_HlGzhicfVE71hAgEHRaQ2st_XslgQZ6txIc'
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error setting up notifications:', error);
+      }
+
       // Store user data in database
-      await set(ref(database, `users/${userCredential.user.uid}`), {
+      const userData = {
         name: registerData.name,
         email: registerData.email,
         username: registerData.username,
         createdAt: Date.now(),
         following: {},
         followers: {},
-      });
+        fcmTokens: fcmToken ? { [fcmToken]: fcmToken } : {}
+      };
+
+      await set(ref(database, `users/${userCredential.user.uid}`), userData);
 
       // Store username mapping for login
       await set(ref(database, `usernames/${registerData.username}`), {
@@ -149,34 +177,36 @@ const Auth = () => {
   };
 
   useEffect(() => {
-    // Request notification permission on component mount
+    // Request notification permission on component mount (web only)
     const requestNotificationPermission = async () => {
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          const token = await getToken(messaging, {
-            vapidKey: 'BJ4dZBUp-vZeKUwQW5JW4X0QmQRlGwmMriZfJaYjs23_6_vzpnO_HlGzhicfVE71hAgEHRaQ2st_XslgQZ6txIc'
-          });
-          console.log('FCM Token:', token);
+      if (!Capacitor.isNativePlatform()) {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            const token = await getToken(messaging, {
+              vapidKey: 'BJ4dZBUp-vZeKUwQW5JW4X0QmQRlGwmMriZfJaYjs23_6_vzpnO_HlGzhicfVE71hAgEHRaQ2st_XslgQZ6txIc'
+            });
+            console.log('FCM Token:', token);
 
-          // Store FCM token in database if user is logged in
-          if (auth.currentUser) {
-            const tokenRef = ref(database, `users/${auth.currentUser.uid}/fcmTokens/${Date.now()}`);
-            await set(tokenRef, token);
+            // Store FCM token in database if user is logged in
+            if (auth.currentUser) {
+              const tokenRef = ref(database, `users/${auth.currentUser.uid}/fcmTokens/${token}`);
+              await set(tokenRef, token);
+            }
           }
+        } catch (error) {
+          console.error('Error requesting notification permission:', error);
         }
-      } catch (error) {
-        console.error('Error requesting notification permission:', error);
       }
     };
 
     requestNotificationPermission();
 
-    // Listen for foreground messages
+    // Listen for foreground messages (web only)
     const unsubscribe = onMessage(messaging, (payload) => {
       console.log('Message received:', payload);
-      // Show notification even when app is open
-      if (Notification.permission === 'granted') {
+      // Show notification even when app is open (web only)
+      if (Notification.permission === 'granted' && !Capacitor.isNativePlatform()) {
         new Notification(payload.notification?.title || 'New Message', {
           body: payload.notification?.body,
           icon: '/PingUP.jpg',

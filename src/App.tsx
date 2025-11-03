@@ -7,7 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { onAuthStateChanged, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { onMessage } from "firebase/messaging";
+import { Capacitor } from "@capacitor/core";
 import { auth, messaging } from "@/lib/firebase";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
@@ -17,6 +19,7 @@ const queryClient = new QueryClient();
 const App = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { isRegistered } = usePushNotifications();
 
   useEffect(() => {
     const initAuth = async () => {
@@ -32,11 +35,11 @@ const App = () => {
         setLoading(false);
       });
 
-      // Listen for foreground messages
+      // Listen for foreground messages (web only - native handled by Capacitor)
       const unsubscribeMessaging = onMessage(messaging, (payload) => {
         console.log('Message received in App:', payload);
-        // Show notification even when app is open
-        if (Notification.permission === 'granted') {
+        // Show notification even when app is open (web only)
+        if (Notification.permission === 'granted' && !Capacitor.isNativePlatform()) {
           new Notification(payload.notification?.title || 'New Message', {
             body: payload.notification?.body,
             icon: '/PingUP.jpg',
