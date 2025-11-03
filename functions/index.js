@@ -40,6 +40,16 @@ exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/
       return null;
     }
 
+    // Check if recipient is online
+    const presenceRef = admin.database().ref(`/users/${recipientId}/presence`);
+    const presenceSnapshot = await presenceRef.once('value');
+    const isRecipientOnline = presenceSnapshot.val() === true;
+
+    if (isRecipientOnline) {
+      console.log('Recipient is online, skipping FCM notification (relying on real-time updates)');
+      return null;
+    }
+
     // Get recipient's FCM tokens
     const tokensRef = admin.database().ref(`/users/${recipientId}/fcmTokens`);
     const tokensSnapshot = await tokensRef.once('value');
@@ -56,7 +66,7 @@ exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/
       body: message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message'),
       icon: 'https://pingup-chat-app.vercel.app/PingUP.jpg',
       badge: 'https://pingup-chat-app.vercel.app/PingUP.jpg',
-      click_action: `https://pingup-chat-app.vercel.app/chat?user=${message.senderId}`,
+      click_action: `https://pingup-chat-app.vercel.app/`,
       data: {
         chatId: chatId,
         senderId: message.senderId,
