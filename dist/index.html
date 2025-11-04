@@ -12,6 +12,18 @@
     <link rel="apple-touch-icon" href="/PingUP.jpg" />
     <link rel="manifest" href="/manifest.json" />
     <title>PingUP - Connect Instantly v1.0.2</title>
+    <script>
+      // Register service worker for Firebase messaging
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+          .then((registration) => {
+            console.log('Service Worker registered successfully:', registration);
+          })
+          .catch((error) => {
+            console.log('Service Worker registration failed:', error);
+          });
+      }
+    </script>
     <meta name="description" content="Modern real-time chat application built with Firebase" />
     <meta name="author" content="PingUP" />
 
@@ -23,7 +35,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@pingup" />
     <meta name="twitter:image" content="/PingUP.jpg" />
-    <script type="module" crossorigin src="/assets/index-CS4aX_Q3.js"></script>
+    <script type="module" crossorigin src="/assets/index-CnIy4oGs.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-TcjfUtQw.css">
   </head>
 

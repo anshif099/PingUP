@@ -1,8 +1,12 @@
 # TODO: Implement Local In-App Notifications
 
 ## Current Status
-- Firebase push notifications are not working
-- Need to replace with local notifications when user comes online
+- Firebase push notification setup removed
+- Firebase messaging service worker removed
+- Firebase Cloud Function removed
+- Firebase config updated to remove messaging
+- usePushNotifications hook simplified
+- Chat.tsx imports updated to remove messaging
 
 ## Tasks
 - [x] Remove Firebase push notification setup from usePushNotifications.tsx
