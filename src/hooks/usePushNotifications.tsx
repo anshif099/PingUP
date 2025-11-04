@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
-import { getToken, onMessage } from 'firebase/messaging';
 import { ref, set, push } from 'firebase/database';
-import { auth, database, messaging } from '@/lib/firebase';
+import { auth, database } from '@/lib/firebase';
 import { toast } from 'sonner';
 
 export const usePushNotifications = () => {
@@ -11,10 +10,10 @@ export const usePushNotifications = () => {
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) {
-      // Web platform - use Firebase Messaging
+      // Web platform - use browser notifications (no Firebase needed)
       registerWebNotifications();
     } else {
-      // Native platform - use Capacitor Push Notifications
+      // Native platform - use Capacitor Push Notifications (no Firebase needed)
       registerNativeNotifications();
     }
   }, []);
@@ -23,28 +22,7 @@ export const usePushNotifications = () => {
     try {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        const token = await getToken(messaging, {
-          vapidKey: 'YOUR_VAPID_KEY_HERE' // You'll need to add this
-        });
-
-        if (token && auth.currentUser) {
-          await set(ref(database, `users/${auth.currentUser.uid}/fcmTokens/${token}`), token);
-        }
-
-        // Listen for foreground messages
-        const unsubscribe = onMessage(messaging, (payload) => {
-          console.log('Foreground message:', payload);
-          if (Notification.permission === 'granted') {
-            new Notification(payload.notification?.title || 'New Message', {
-              body: payload.notification?.body,
-              icon: '/PingUP.jpg',
-              badge: '/PingUP.jpg'
-            });
-          }
-        });
-
         setIsRegistered(true);
-        return () => unsubscribe();
       }
     } catch (error) {
       console.error('Error registering web notifications:', error);
@@ -62,9 +40,6 @@ export const usePushNotifications = () => {
         // Listen for registration success
         PushNotifications.addListener('registration', async (token) => {
           console.log('Push registration success, token:', token.value);
-          if (auth.currentUser) {
-            await set(ref(database, `users/${auth.currentUser.uid}/fcmTokens/${token.value}`), token.value);
-          }
           setIsRegistered(true);
         });
 
