@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const axios = require('axios');
 
 admin.initializeApp();
 
@@ -122,10 +123,27 @@ exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/
       const successful = results.filter(result => result.status === 'fulfilled').length;
       const failed = results.filter(result => result.status === 'rejected').length;
 
-      console.log(`Notifications sent: ${successful} successful, ${failed} failed`);
+      console.log(`FCM Notifications sent: ${successful} successful, ${failed} failed`);
 
       if (failed > 0) {
-        console.error('Failed notifications:', results.filter(result => result.status === 'rejected'));
+        console.error('Failed FCM notifications:', results.filter(result => result.status === 'rejected'));
+      }
+
+      // Also send notification via ntfy.sh as backup/alternative
+      const messageText = message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message');
+      const ntfyBody = `${senderData.name}: ${messageText}`;
+
+      try {
+        await axios.post(`https://ntfy.sh/${recipientId}`, ntfyBody, {
+          headers: {
+            'Title': 'PingUP',
+            'Priority': 'default',
+            'Tags': 'speech_balloon'
+          }
+        });
+        console.log(`ntfy.sh notification sent to ${recipientId}`);
+      } catch (ntfyError) {
+        console.error('Error sending ntfy.sh notification:', ntfyError.message);
       }
 
       return { successful, failed };
