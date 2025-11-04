@@ -17,6 +17,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import PingUPLogo from "@/components/PingUPLogo";
 import { UpdateDialog } from "@/components/UpdateDialog";
+import axios from "axios";
 
 interface User {
   uid: string;
@@ -407,6 +408,20 @@ const Chat = () => {
 
     // Update last message
     await set(ref(database, `chats/${selectedChat.chatId}/lastMessage`), messageData);
+
+    // Send notification via ntfy.sh
+    try {
+      await axios.post(`https://ntfy.sh/PingUP/${selectedChat.otherUser.uid}`, `${currentUser.name}: ${messageText.trim()}`, {
+        headers: {
+          'Title': 'PingUP',
+          'Priority': 'default',
+          'Tags': 'speech_balloon'
+        }
+      });
+      console.log(`ntfy.sh notification sent to PingUP/${selectedChat.otherUser.uid}`);
+    } catch (error) {
+      console.error('Error sending ntfy.sh notification:', error);
+    }
 
     setMessageText("");
   };
