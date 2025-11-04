@@ -156,75 +156,7 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Check for unread messages when app loads
-  useEffect(() => {
-    if (currentUser && !hasShownNotification) {
-      // Check all chats for unread messages
-      const checkUnreadMessages = async () => {
-        const userChatsRef = ref(database, `userChats/${currentUser.uid}`);
-        const snapshot = await get(userChatsRef);
 
-        if (snapshot.exists()) {
-          const chatIds = Object.keys(snapshot.val());
-          let hasUnreadMessages = false;
-          let chatWithUnread: Chat | null = null;
-
-          for (const chatId of chatIds) {
-            const messagesRef = ref(database, `chats/${chatId}/messages`);
-            const messagesSnapshot = await get(messagesRef);
-
-            if (messagesSnapshot.exists()) {
-              const messagesData = messagesSnapshot.val();
-              const unreadMessages = Object.values(messagesData).filter((msg: any) =>
-                msg.senderId !== currentUser.uid && !msg.readBy?.[currentUser.uid]
-              ) as Message[];
-
-              if (unreadMessages.length > 0) {
-                hasUnreadMessages = true;
-
-                // Get the chat info
-                const [uid1, uid2] = chatId.split('_');
-                const otherUserId = uid1 === currentUser.uid ? uid2 : uid1;
-                const otherUserRef = ref(database, `users/${otherUserId}`);
-                const otherUserSnapshot = await get(otherUserRef);
-
-                if (otherUserSnapshot.exists()) {
-                  const lastUnreadMessage = unreadMessages[unreadMessages.length - 1];
-                  chatWithUnread = {
-                    chatId,
-                    otherUser: { uid: otherUserId, ...otherUserSnapshot.val() },
-                    lastMessage: lastUnreadMessage?.text || 'New message',
-                    timestamp: lastUnreadMessage?.timestamp
-                  };
-                }
-                break; // Found one chat with unread messages, that's enough
-              }
-            }
-          }
-
-          if (hasUnreadMessages) {
-            // Show toast notification
-            toast("You have a new message", {
-              description: "Click here to view your messages",
-              action: {
-                label: "View",
-                onClick: () => {
-                  if (chatWithUnread) {
-                    setSelectedChat(chatWithUnread);
-                  }
-                }
-              },
-              duration: 10000, // Show for 10 seconds
-            });
-            setHasShownNotification(true);
-          }
-        }
-      };
-
-      // Check immediately when component mounts
-      checkUnreadMessages();
-    }
-  }, [currentUser, hasShownNotification]);
 
   const loadChats = async (userId: string) => {
     const chatsRef = ref(database, `userChats/${userId}`);
