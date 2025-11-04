@@ -41,15 +41,8 @@ exports.sendNotification = functions.database.ref('/chats/{chatId}/messages/{mes
       return null;
     }
 
-    // Check if recipient is online
-    const presenceRef = admin.database().ref(`/users/${recipientId}/presence`);
-    const presenceSnapshot = await presenceRef.once('value');
-    const isRecipientOnline = presenceSnapshot.val() === true;
-
-    if (isRecipientOnline) {
-      console.log('Recipient is online, skipping notification (relying on real-time updates)');
-      return null;
-    }
+    // Send notification regardless of online status (like WhatsApp)
+    console.log('Sending notification to recipient:', recipientId);
 
     // Send notification via ntfy.sh
     const messageText = message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message');
