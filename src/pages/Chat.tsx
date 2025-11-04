@@ -156,9 +156,9 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Check for unread messages when user comes online
+  // Check for unread messages when app loads
   useEffect(() => {
-    if (currentUser && currentUserOnline && !hasShownNotification) {
+    if (currentUser && !hasShownNotification) {
       // Check all chats for unread messages
       const checkUnreadMessages = async () => {
         const userChatsRef = ref(database, `userChats/${currentUser.uid}`);
@@ -221,9 +221,10 @@ const Chat = () => {
         }
       };
 
+      // Check immediately when component mounts
       checkUnreadMessages();
     }
-  }, [currentUser, currentUserOnline, hasShownNotification]);
+  }, [currentUser, hasShownNotification]);
 
   const loadChats = async (userId: string) => {
     const chatsRef = ref(database, `userChats/${userId}`);
