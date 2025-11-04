@@ -1,30 +1,15 @@
-# PingUP Push Notifications Implementation
+# TODO: Implement Local In-App Notifications
 
-## Completed Tasks
-- [x] Created Firebase Cloud Function for sending push notifications
-- [x] Updated Auth.tsx to request notification permissions and store FCM tokens
-- [x] Updated Chat.tsx to update FCM tokens on login
-- [x] Updated App.tsx to handle foreground messages
-- [x] Added functions configuration to firebase.json
-- [x] Created Firebase Messaging Service Worker for background notifications
-- [x] Added service worker registration to index.html
-- [x] Modified Cloud Function to check recipient presence before sending notifications
+## Current Status
+- Firebase push notifications are not working
+- Need to replace with local notifications when user comes online
 
-## Next Steps
-- [ ] Deploy the Cloud Function to Firebase (requires Blaze plan upgrade)
-- [ ] Test notifications on web browser
-- [ ] Test notifications on mobile (Android/iOS) via Capacitor
-- [ ] Update database rules to allow FCM token storage
-- [ ] Handle notification click to open specific chat
-- [ ] Add notification settings/preferences
-
-## Deployment Instructions
-1. Install Firebase CLI if not already installed: `npm install -g firebase-tools`
-2. Login to Firebase: `firebase login`
-3. Deploy functions: `firebase deploy --only functions`
-4. Test the notifications by sending messages between users
-
-## Testing
-- Open the app in browser and mobile
-- Send messages between different user accounts
-- Check if push notifications appear with correct format: "PingUP [Sender Name]: [Message]"
+## Tasks
+- [x] Remove Firebase push notification setup from usePushNotifications.tsx
+- [x] Remove Firebase messaging service worker (public/firebase-messaging-sw.js)
+- [x] Remove Firebase Cloud Function for push notifications (functions/index.js)
+- [x] Update Firebase config to remove messaging import (src/lib/firebase.ts)
+- [x] Modify Chat.tsx to check for unread messages when user comes online
+- [x] Implement local notification popup using toast when user has unread messages
+- [x] Add click handler to redirect to chat with unread messages
+- [x] Test notification flow when user comes online with unread messages

@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { ref, onValue, push, set, get, query, orderByChild, update, remove } from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getToken, onMessage } from "firebase/messaging";
-import { auth, database, storage, messaging } from "@/lib/firebase";
+import { auth, database, storage } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -63,6 +62,7 @@ const Chat = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [hasShownNotification, setHasShownNotification] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -82,19 +82,7 @@ const Chat = () => {
           setFollowing(userData.following || {});
           loadChats(user.uid);
 
-          // Update FCM token for this device
-          try {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-              const token = await getToken(messaging, {
-                vapidKey: 'BJ4dZBUp-vZeKUwQW5JW4X0QmQRlGwmMriZfJaYjs23_6_vzpnO_HlGzhicfVE71hAgEHRaQ2st_XslgQZ6txIc'
-              });
-              const tokenRef = ref(database, `users/${user.uid}/fcmTokens/${Date.now()}`);
-              await set(tokenRef, token);
-            }
-          } catch (error) {
-            console.error('Error updating FCM token:', error);
-          }
+
         }
       } else {
         navigate("/");
@@ -129,37 +117,6 @@ const Chat = () => {
           const messagesArray = Object.entries(messagesData)
             .map(([id, msg]: [string, any]) => ({ id, ...msg }))
             .sort((a, b) => a.timestamp - b.timestamp);
-
-          // Check for new messages from other users
-          const newMessages = messagesArray.filter(msg =>
-            msg.senderId !== currentUser?.uid &&
-            !messages.some(existingMsg => existingMsg.id === msg.id)
-          );
-
-          // Show notifications for new messages
-          newMessages.forEach(message => {
-            if (Notification.permission === 'granted' && !document.hasFocus()) {
-              // Only show notification if document does not have focus
-              const notification = new Notification(`PingUP ${selectedChat.otherUser.name}`, {
-                body: message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message'),
-                icon: '/PingUP.jpg',
-                badge: '/PingUP.jpg',
-                tag: `chat-${selectedChat.chatId}`, // Group notifications for same chat
-                requireInteraction: false
-              });
-
-              // Auto-close notification after 5 seconds
-              setTimeout(() => {
-                notification.close();
-              }, 5000);
-
-              // Click handler to focus the window
-              notification.onclick = () => {
-                window.focus();
-                notification.close();
-              };
-            }
-          });
 
           setMessages(messagesArray);
         }
@@ -198,6 +155,75 @@ const Chat = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Check for unread messages when user comes online
+  useEffect(() => {
+    if (currentUser && currentUserOnline && !hasShownNotification) {
+      // Check all chats for unread messages
+      const checkUnreadMessages = async () => {
+        const userChatsRef = ref(database, `userChats/${currentUser.uid}`);
+        const snapshot = await get(userChatsRef);
+
+        if (snapshot.exists()) {
+          const chatIds = Object.keys(snapshot.val());
+          let hasUnreadMessages = false;
+          let chatWithUnread: Chat | null = null;
+
+          for (const chatId of chatIds) {
+            const messagesRef = ref(database, `chats/${chatId}/messages`);
+            const messagesSnapshot = await get(messagesRef);
+
+            if (messagesSnapshot.exists()) {
+              const messagesData = messagesSnapshot.val();
+              const unreadMessages = Object.values(messagesData).filter((msg: any) =>
+                msg.senderId !== currentUser.uid && !msg.readBy?.[currentUser.uid]
+              ) as Message[];
+
+              if (unreadMessages.length > 0) {
+                hasUnreadMessages = true;
+
+                // Get the chat info
+                const [uid1, uid2] = chatId.split('_');
+                const otherUserId = uid1 === currentUser.uid ? uid2 : uid1;
+                const otherUserRef = ref(database, `users/${otherUserId}`);
+                const otherUserSnapshot = await get(otherUserRef);
+
+                if (otherUserSnapshot.exists()) {
+                  const lastUnreadMessage = unreadMessages[unreadMessages.length - 1];
+                  chatWithUnread = {
+                    chatId,
+                    otherUser: { uid: otherUserId, ...otherUserSnapshot.val() },
+                    lastMessage: lastUnreadMessage?.text || 'New message',
+                    timestamp: lastUnreadMessage?.timestamp
+                  };
+                }
+                break; // Found one chat with unread messages, that's enough
+              }
+            }
+          }
+
+          if (hasUnreadMessages) {
+            // Show toast notification
+            toast("You have a new message", {
+              description: "Click here to view your messages",
+              action: {
+                label: "View",
+                onClick: () => {
+                  if (chatWithUnread) {
+                    setSelectedChat(chatWithUnread);
+                  }
+                }
+              },
+              duration: 10000, // Show for 10 seconds
+            });
+            setHasShownNotification(true);
+          }
+        }
+      };
+
+      checkUnreadMessages();
+    }
+  }, [currentUser, currentUserOnline, hasShownNotification]);
 
   const loadChats = async (userId: string) => {
     const chatsRef = ref(database, `userChats/${userId}`);
