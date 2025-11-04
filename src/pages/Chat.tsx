@@ -13,6 +13,7 @@ import { Send, Search, LogOut, User, Image, Mic, Heart, Laugh, ThumbsUp, MoreVer
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePresence, useUserPresence } from "@/hooks/usePresence";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import PingUPLogo from "@/components/PingUPLogo";
 import { UpdateDialog } from "@/components/UpdateDialog";
@@ -70,6 +71,7 @@ const Chat = () => {
   const recordingTimeoutRef = useRef<NodeJS.Timeout>();
   const { isOnline: currentUserOnline } = usePresence(currentUser?.uid || null);
   const { isOnline: otherUserOnline, lastSeen: otherUserLastSeen } = useUserPresence(selectedChat?.otherUser.uid || "");
+  const { isRegistered: notificationsRegistered } = usePushNotifications();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
