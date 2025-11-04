@@ -4,7 +4,7 @@ const axios = require('axios');
 
 admin.initializeApp();
 
-exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/{messageId}')
+exports.sendNotification = functions.database.ref('/chats/{chatId}/messages/{messageId}')
   .onCreate(async (snapshot, context) => {
     const message = snapshot.val();
     const chatId = context.params.chatId;
@@ -47,108 +47,26 @@ exports.sendPushNotification = functions.database.ref('/chats/{chatId}/messages/
     const isRecipientOnline = presenceSnapshot.val() === true;
 
     if (isRecipientOnline) {
-      console.log('Recipient is online, skipping FCM notification (relying on real-time updates)');
+      console.log('Recipient is online, skipping notification (relying on real-time updates)');
       return null;
     }
 
-    // Get recipient's FCM tokens
-    const tokensRef = admin.database().ref(`/users/${recipientId}/fcmTokens`);
-    const tokensSnapshot = await tokensRef.once('value');
-    const tokens = tokensSnapshot.val();
-
-    if (!tokens) {
-      console.log('No FCM tokens found for recipient');
-      return null;
-    }
-
-    // Prepare the notification payload
-    const notificationPayload = {
-      title: `PingUP ${senderData.name}`,
-      body: message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message'),
-      icon: 'https://pingup-chat-app.vercel.app/PingUP.jpg',
-      badge: 'https://pingup-chat-app.vercel.app/PingUP.jpg',
-      click_action: `https://pingup-chat-app.vercel.app/`,
-      data: {
-        chatId: chatId,
-        senderId: message.senderId,
-        messageId: context.params.messageId
-      }
-    };
-
-    // Send notifications to all tokens
-    const tokenArray = Object.values(tokens);
-    console.log(`Sending notifications to ${tokenArray.length} tokens for user ${recipientId}`);
-
-    const promises = tokenArray.map(token =>
-      admin.messaging().send({
-        token: token,
-        notification: notificationPayload,
-        data: {
-          chatId: chatId,
-          senderId: message.senderId,
-          messageId: context.params.messageId
-        },
-        android: {
-          priority: 'high',
-          notification: {
-            channelId: 'messages',
-            priority: 'high',
-            defaultSound: true,
-            defaultVibrateTimings: true
-          }
-        },
-        apns: {
-          payload: {
-            aps: {
-              alert: notificationPayload,
-              badge: 1,
-              sound: 'default'
-            }
-          }
-        },
-        webpush: {
-          headers: {
-            Urgency: 'high'
-          },
-          notification: {
-            ...notificationPayload,
-            requireInteraction: true
-          }
-        }
-      })
-    );
+    // Send notification via ntfy.sh
+    const messageText = message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message');
+    const ntfyBody = `${senderData.name}: ${messageText}`;
 
     try {
-      const results = await Promise.allSettled(promises);
-      const successful = results.filter(result => result.status === 'fulfilled').length;
-      const failed = results.filter(result => result.status === 'rejected').length;
-
-      console.log(`FCM Notifications sent: ${successful} successful, ${failed} failed`);
-
-      if (failed > 0) {
-        console.error('Failed FCM notifications:', results.filter(result => result.status === 'rejected'));
-      }
-
-      // Also send notification via ntfy.sh as backup/alternative
-      const messageText = message.text || (message.imageData ? '[Image]' : message.voiceData ? '[Voice Message]' : 'New message');
-      const ntfyBody = `${senderData.name}: ${messageText}`;
-
-      try {
-        await axios.post(`https://ntfy.sh/${recipientId}`, ntfyBody, {
-          headers: {
-            'Title': 'PingUP',
-            'Priority': 'default',
-            'Tags': 'speech_balloon'
-          }
-        });
-        console.log(`ntfy.sh notification sent to ${recipientId}`);
-      } catch (ntfyError) {
-        console.error('Error sending ntfy.sh notification:', ntfyError.message);
-      }
-
-      return { successful, failed };
+      await axios.post(`https://ntfy.sh/PingUP/${recipientId}`, ntfyBody, {
+        headers: {
+          'Title': 'PingUP',
+          'Priority': 'default',
+          'Tags': 'speech_balloon'
+        }
+      });
+      console.log(`ntfy.sh notification sent to PingUP/${recipientId}`);
+      return { success: true };
     } catch (error) {
-      console.error('Error sending notifications:', error);
-      return null;
+      console.error('Error sending ntfy.sh notification:', error.message);
+      return { success: false, error: error.message };
     }
   });
