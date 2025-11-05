@@ -1,19 +1,13 @@
-# TODO: Implement Local In-App Notifications
-
-## Current Status
-- Firebase push notification setup removed
-- Firebase messaging service worker removed
-- Firebase Cloud Function removed
-- Firebase config updated to remove messaging
-- usePushNotifications hook simplified
-- Chat.tsx imports updated to remove messaging
+# TODO: Implement AJAX Notifications for Online/Offline and New Messages
 
 ## Tasks
-- [x] Remove Firebase push notification setup from usePushNotifications.tsx
-- [x] Remove Firebase messaging service worker (public/firebase-messaging-sw.js)
-- [x] Remove Firebase Cloud Function for push notifications (functions/index.js)
-- [x] Update Firebase config to remove messaging import (src/lib/firebase.ts)
-- [x] Modify Chat.tsx to check for unread messages when user comes online
-- [x] Implement local notification popup using toast when user has unread messages
-- [x] Add click handler to redirect to chat with unread messages
-- [x] Test notification flow when user comes online with unread messages
+- [ ] Remove Cloud Function (functions/index.js)
+- [ ] Update usePresence.tsx to send presence notifications via axios to ntfy.sh when user comes online/offline
+- [ ] Update Chat.tsx to add useEffect for listening to all users' presence and show browser alerts on online/offline changes
+- [ ] Update Chat.tsx messages useEffect to show browser alert on new message arrival
+- [ ] Test notifications on web, Android, iOS
+
+## Notes
+- Use axios to send notifications to ntfy.sh for presence changes to all users.
+- Use window.alert for browser alerts.
+- Keep existing axios in handleSendMessage for message notifications.

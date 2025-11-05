@@ -70,7 +70,7 @@ const Chat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimeoutRef = useRef<NodeJS.Timeout>();
-  const { isOnline: currentUserOnline } = usePresence(currentUser?.uid || null);
+  const { isOnline: currentUserOnline } = usePresence(currentUser?.uid || null, currentUser?.name);
   const { isOnline: otherUserOnline, lastSeen: otherUserLastSeen } = useUserPresence(selectedChat?.otherUser.uid || "");
   const { isRegistered: notificationsRegistered } = usePushNotifications();
 
@@ -106,10 +106,29 @@ const Chat = () => {
         }
       });
       setUsers(usersData);
+
+      // Listen for presence changes of all users and show alerts
+      const presenceRefs: any[] = [];
+      usersData.forEach((user) => {
+        const presenceRef = ref(database, `users/${user.uid}/presence`);
+        const unsubscribePresence = onValue(presenceRef, (snapshot) => {
+          const isOnline = snapshot.val() === true;
+          if (isOnline && !hasShownNotification) {
+            window.alert(`${user.name} is now online`);
+            setHasShownNotification(true);
+            setTimeout(() => setHasShownNotification(false), 1000); // Reset after 1 second
+          }
+        });
+        presenceRefs.push(unsubscribePresence);
+      });
+
+      return () => {
+        presenceRefs.forEach(unsub => unsub());
+      };
     });
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, [currentUser, hasShownNotification]);
 
   useEffect(() => {
     if (selectedChat) {
@@ -122,6 +141,12 @@ const Chat = () => {
             .sort((a, b) => a.timestamp - b.timestamp);
 
           setMessages(messagesArray);
+
+          // Show alert for new message
+          const latestMessage = messagesArray[messagesArray.length - 1];
+          if (latestMessage && latestMessage.senderId !== currentUser?.uid) {
+            window.alert(`New message from ${selectedChat.otherUser.name}: ${latestMessage.text || (latestMessage.imageData ? '[Image]' : latestMessage.voiceData ? '[Voice Message]' : 'New message')}`);
+          }
         }
       });
 

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { ref, onValue, set, onDisconnect } from "firebase/database";
 import { database } from "@/lib/firebase";
+import axios from "axios";
 
-export const usePresence = (userId: string | null) => {
+export const usePresence = (userId: string | null, currentUserName?: string) => {
   const [isOnline, setIsOnline] = useState(false);
   const [lastSeen, setLastSeen] = useState<number | null>(null);
 
@@ -14,6 +15,17 @@ export const usePresence = (userId: string | null) => {
 
     // Set user as online
     set(presenceRef, true);
+
+    // Send online notification to all users via ntfy.sh
+    if (currentUserName) {
+      axios.post(`https://ntfy.sh/PingUP/all`, `${currentUserName} is now online`, {
+        headers: {
+          'Title': 'PingUP',
+          'Priority': 'default',
+          'Tags': 'green_circle'
+        }
+      }).catch(error => console.error('Error sending online notification:', error));
+    }
 
     // Set up disconnect handler to mark as offline and update last seen
     onDisconnect(presenceRef).set(false);
@@ -35,8 +47,18 @@ export const usePresence = (userId: string | null) => {
       // Mark as offline when component unmounts
       set(presenceRef, false);
       set(lastSeenRef, Date.now());
+      // Send offline notification
+      if (currentUserName) {
+        axios.post(`https://ntfy.sh/PingUP/all`, `${currentUserName} is now offline`, {
+          headers: {
+            'Title': 'PingUP',
+            'Priority': 'default',
+            'Tags': 'red_circle'
+          }
+        }).catch(error => console.error('Error sending offline notification:', error));
+      }
     };
-  }, [userId]);
+  }, [userId, currentUserName]);
 
   return { isOnline, lastSeen };
 };
