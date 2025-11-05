@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { ref, set, push } from 'firebase/database';
+import { getMessaging, getToken } from 'firebase/messaging';
 import { auth, database } from '@/lib/firebase';
 import { toast } from 'sonner';
 
@@ -22,6 +23,18 @@ export const usePushNotifications = () => {
     try {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
+        // Get FCM token for web push notifications
+        const messaging = getMessaging();
+        const token = await getToken(messaging, {
+          vapidKey: 'YOUR_VAPID_KEY_HERE' // You'll need to add this to Firebase Console
+        });
+        console.log('FCM token:', token);
+
+        // Store token in database for sending notifications
+        if (auth.currentUser) {
+          await set(ref(database, `users/${auth.currentUser.uid}/fcmToken`), token);
+        }
+
         setIsRegistered(true);
       }
     } catch (error) {

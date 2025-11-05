@@ -19,6 +19,55 @@ import PingUPLogo from "@/components/PingUPLogo";
 import { UpdateDialog } from "@/components/UpdateDialog";
 import axios from "axios";
 
+const sendPushNotification = async (recipientUid: string, message: Message, senderName: string, chatId: string) => {
+  try {
+    // Get recipient's FCM token
+    const tokenRef = ref(database, `users/${recipientUid}/fcmToken`);
+    const tokenSnapshot = await get(tokenRef);
+
+    if (tokenSnapshot.exists()) {
+      const fcmToken = tokenSnapshot.val();
+
+      // Prepare notification payload
+      const notificationPayload = {
+        to: fcmToken,
+        notification: {
+          title: `New message from ${senderName}`,
+          body: message.text || (message.imageData ? '📷 Image' : message.voiceData ? '🎵 Voice message' : 'New message'),
+          icon: '/PingUP.jpg',
+          badge: '/PingUP.jpg',
+          click_action: '/'
+        },
+        data: {
+          chatId: chatId,
+          senderId: message.senderId,
+          messageType: message.text ? 'text' : message.imageData ? 'image' : 'voice'
+        }
+      };
+
+      // Send via Firebase Cloud Messaging API
+      const response = await fetch('https://fcm.googleapis.com/fcm/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `key=${process.env.REACT_APP_FCM_SERVER_KEY}` // You'll need to add this to your env
+        },
+        body: JSON.stringify(notificationPayload)
+      });
+
+      if (response.ok) {
+        console.log('Push notification sent successfully');
+      } else {
+        console.error('Failed to send push notification:', response.statusText);
+      }
+    } else {
+      console.log('No FCM token found for recipient');
+    }
+  } catch (error) {
+    console.error('Error sending push notification:', error);
+  }
+};
+
 interface User {
   uid: string;
   name: string;
@@ -142,10 +191,10 @@ const Chat = () => {
 
           setMessages(messagesArray);
 
-          // Show alert for new message
+          // Send push notification for new message
           const latestMessage = messagesArray[messagesArray.length - 1];
           if (latestMessage && latestMessage.senderId !== currentUser?.uid) {
-            window.alert(`New message from ${selectedChat.otherUser.name}: ${latestMessage.text || (latestMessage.imageData ? '[Image]' : latestMessage.voiceData ? '[Voice Message]' : 'New message')}`);
+            sendPushNotification(selectedChat.otherUser.uid, latestMessage, selectedChat.otherUser.name, selectedChat.chatId);
           }
         }
       });
